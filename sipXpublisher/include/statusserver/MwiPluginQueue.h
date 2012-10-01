@@ -208,7 +208,7 @@ private:
             data.subscribe->getToUrl(to);
             UtlString userId;
             to.getUserId(userId);
-            if (userId.isNull())
+            if (!userId.isNull())
               data.mailBox = userId.data();
 
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
