@@ -147,6 +147,7 @@ Notifier::sendNotifyForeachSubscription (
     UtlString userFromUri;
     UtlString userToUri;
     UtlString userCallid;
+#if 0
     if (UserStaticDB::getInstance()->getStaticContact(userUri, eventType, 
                                                       userContact, userFromUri, userToUri, userCallid)) {
          OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -161,6 +162,7 @@ Notifier::sendNotifyForeachSubscription (
          SendTheNotify(notify, mpSipUserAgent, userUri, userContact, userFromUri, userToUri, userCallid, notifycseq, 
                        eventType, id, subscriptionState, recordroute);
     }
+#end
 
     int numSubscriptions = subscriptions.getSize();
 
