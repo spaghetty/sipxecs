@@ -162,7 +162,7 @@ Notifier::sendNotifyForeachSubscription (
          SendTheNotify(notify, mpSipUserAgent, userUri, userContact, userFromUri, userToUri, userCallid, notifycseq, 
                        eventType, id, subscriptionState, recordroute);
     }
-#end
+#endif
 
     int numSubscriptions = subscriptions.getSize();
 
