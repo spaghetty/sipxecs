@@ -10,6 +10,7 @@
 #include <boost/function.hpp>
 #include <net/SipMessage.h>
 #include <statusserver/MwiMessageCounter.h>
+#include <os/OsSysLog.h>
 
 #define MWI_PLUGIN_QUEUE_MAX_SIZE 1000
 
@@ -197,9 +198,6 @@ private:
 
         if (data.subscribe)
         {
-          
-          
-          std::string identity;
           if (data.mailBox.empty())
           {
             //
@@ -211,16 +209,18 @@ private:
             UtlString userId;
             to.getUserId(userId);
             if (userId.isNull())
-              identity = userId.data();
-          }
-          else
-          {
-            identity = data.mailBox;
+              data.mailBox = userId.data();
+
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                     "MwiPluginQueue::internal_run extracting user id from to-uri: '%s'", data.mailBox.c_str());
           }
 
+          std::string identity = data.mailBox;
           identity += "@";
           identity += data.domain;
 
+          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                     "MwiPluginQueue::internal_run handling event for identity '%s'", identity.c_str());
           //
           // Check if we have cached it previously
           //
@@ -229,12 +229,16 @@ private:
           {
             data.mailBox = identity;
             data.mailBoxData = iter->second;
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                     "MwiPluginQueue::internal_run identity '%s' has cached mwi data: '%s'", data.mailBox.c_str(), data.mailBoxData.c_str());
           }
           else
           {
             MwiMessageCounter counter(data.mailBox);
             data.mailBox = identity;
             data.mailBoxData = counter.getMailBoxData(data.domain);
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                     "MwiPluginQueue::internal_run identity '%s' MwiMessageCounter::mwi_data: '%s'", data.mailBox.c_str(), data.mailBoxData.c_str());
           }
         }
 
@@ -244,7 +248,11 @@ private:
         // Cache it
         //
         if (data.mailBox.find("@") != std::string::npos && !data.mailBoxData.empty())
+        {
           _notifyData[data.mailBox] = data.mailBoxData;
+          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                     "MwiPluginQueue::internal_run caching identity: '%s' mwi_data: '%s'", data.mailBox.c_str(), data.mailBoxData.c_str());
+        }
 
         if (data.subscribe)
           delete data.subscribe;
