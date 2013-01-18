@@ -63,7 +63,6 @@ nobase_include_HEADERS = \
     os/OsPathBase.h \
     os/OsPlugin.h \
     os/OsPluginManager.h \
-    os/OsPooledTask.h \
     os/OsProcess.h \
     os/OsProcessIterator.h \
     os/OsProtectEvent.h \

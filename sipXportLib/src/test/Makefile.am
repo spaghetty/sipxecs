@@ -51,7 +51,6 @@ testsuite_SOURCES = \
     utl/UtlRegex.cpp \
     utl/UtlTokenizerTest.cpp \
     utl/XmlContentTest.cpp \
-    os/OsPooledEventTest.cpp \
     os/OsTestUtilities.cpp \
     os/OsTestUtilities.h \
     os/OsNameDbTest.cpp \
