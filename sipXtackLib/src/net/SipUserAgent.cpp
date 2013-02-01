@@ -2922,11 +2922,6 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
             Os::Logger::instance().log(FAC_SIP, PRI_WARNING,
                           "SipUserAgent::handleMessage unknown timeout event: %d.", msgEventType);
          }
-
-         // Since the timer has fired, it is our responsibility to
-         // delete the SipMessageEvent.  The attached SipMessage will
-         // be freed with the SipMessageEvent.
-         delete sipEvent;
       } // end if sipEvent
       messageProcessed = TRUE;
    }
