@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.site.user;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,6 +23,8 @@ import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.form.IPropertySelectionModel;
+import org.apache.tapestry.form.StringPropertySelectionModel;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -42,7 +45,10 @@ import org.sipfoundry.sipxconfig.site.setting.EditSchedule;
 import org.sipfoundry.sipxconfig.site.setting.GroupSettings;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDialGroup;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDialManager;
+import org.sipfoundry.sipxconfig.time.NtpManager;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
+
+import com.davekoelle.AlphanumComparator;
 
 public abstract class UserGroupSettings extends GroupSettings {
     public static final String PAGE = "user/UserGroupSettings";
@@ -56,6 +62,7 @@ public abstract class UserGroupSettings extends GroupSettings {
     private static final String CONFIGURE = "configure";
     private static final String VOICEMAIL = "voicemail";
     private static final String MOH = "moh";
+    private static final String TIMEZONE = "timeZone";
 
     @InjectObject(value = "spring:forwardingContext")
     public abstract ForwardingContext getForwardingContext();
@@ -65,7 +72,10 @@ public abstract class UserGroupSettings extends GroupSettings {
 
     @InjectObject("spring:featureManager")
     public abstract FeatureManager getFeatureManager();
-
+    
+    @InjectObject("spring:ntpManager")
+    public abstract NtpManager getTimeManager();
+    
     public abstract void setSchedules(List<UserGroupSchedule> schedules);
 
     public abstract List<UserGroupSchedule> getSchedules();
@@ -97,6 +107,14 @@ public abstract class UserGroupSettings extends GroupSettings {
 
     public abstract void setSpeedDialGroup(SpeedDialGroup speedDialGroup);
 
+    public abstract String getTimezoneType();
+
+    public abstract void setTimezoneType(String type);
+
+    public abstract IPropertySelectionModel getTimezoneTypeModel();
+
+    public abstract void setTimezoneTypeModel(IPropertySelectionModel model);
+    
     @Persist
     public abstract boolean getIsTabsSelected();
 
@@ -123,7 +141,7 @@ public abstract class UserGroupSettings extends GroupSettings {
         if (isVoicemailEnabled()) {
             tabNames.add(VOICEMAIL);
         }
-        tabNames.addAll(Arrays.asList(SCHEDULES, CONFERENCE, EXTCONTACT, SPEEDDIAL));
+        tabNames.addAll(Arrays.asList(SCHEDULES, CONFERENCE, EXTCONTACT, SPEEDDIAL, TIMEZONE));
         if (isVoicemailEnabled()) {
             tabNames.add(MOH);
         }
@@ -183,6 +201,24 @@ public abstract class UserGroupSettings extends GroupSettings {
         Setting settings = group.inherhitSettingsForEditing(getBean());
         setSettings(settings);
 
+        if (getTab().equals(TIMEZONE)) {
+            // Init. the timezone dropdown menu.
+            List<String> timezoneList = getTimeManager().getAvailableTimezones();
+    
+            // Sort list alphanumerically.
+            Collections.sort(timezoneList, new AlphanumComparator());
+            StringPropertySelectionModel model = new StringPropertySelectionModel(
+                    timezoneList.toArray(new String[timezoneList.size()]));
+            setTimezoneTypeModel(model);
+            if (!event_.getRequestCycle().isRewinding()) {
+                String utz = getGroup().getSettingValue("timezone/timezone");
+                if (utz != null) {
+                    setTimezoneType(utz);
+                }
+            }
+            
+        }
+        
         if (getFirstRun() || (null != getTab() && getParentSettingName() == null)
                 || (null != getTab() && !getIsTabsSelected())) {
             setParentSetting(null);
@@ -295,6 +331,11 @@ public abstract class UserGroupSettings extends GroupSettings {
         getProfileManager().generateProfiles(ids, true, null);
     }
 
+    public void onApplyTimeZone() {
+        getGroup().setSettingValue("timezone/timezone", getTimezoneType());
+        apply();
+    }
+
     public String getGroupsToHide() {
         List<String> names = new LinkedList<String>();
         names.add(VOICEMAIL);
@@ -305,6 +346,7 @@ public abstract class UserGroupSettings extends GroupSettings {
         if (!isVoicemailEnabled()) {
             names.add("personal-attendant");
         }
+        names.add("timezone");
         return StringUtils.join(names, SEPARATOR);
     }
 
@@ -317,6 +359,15 @@ public abstract class UserGroupSettings extends GroupSettings {
             names.add("leaveMsgBeginIM, leaveMsgEndIM");
         }
         return StringUtils.join(names, SEPARATOR);
+    }
+
+    public boolean isRenderBranchOption() {
+        return getGroup().getBranch() != null;
+    }
+
+    public boolean isRenderTimeZoneDropDown() {
+        return getGroup().getBranch() == null
+                || !(Boolean) getSettings().getSetting("timezone/useBranchTimezone").getTypedValue();
     }
 
     public boolean getSubscribePresenceGroupDisabled() {
