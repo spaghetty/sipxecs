@@ -123,8 +123,9 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
     }
 
     public List<Cdr> getCdrs(Date from, Date to, CdrSearch search, User user, int limit, int offset) {
-        CdrsStatementCreator psc = new SelectAll(from, to, search, user, m_tz, limit, offset);
-        CdrsResultReader resultReader = new CdrsResultReader(m_tz);
+        CdrsStatementCreator psc = new SelectAll(from, to, search, user, (user != null) ? (user.getTimezone())
+                : m_tz, limit, offset);
+        CdrsResultReader resultReader = new CdrsResultReader((user != null) ? (user.getTimezone()) : m_tz);
         getJdbcTemplate().query(psc, resultReader);
         return resultReader.getResults();
     }
@@ -241,8 +242,8 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
 
     private String getActiveCdrsRestUrl(User user) {
         Address address = getCdrAgentAddress();
-        return String.format("http://%s:%d/activecdrs?name=%s",
-                address.getAddress(), address.getPort(), user.getUserName());
+        return String.format("http://%s:%d/activecdrs?name=%s", address.getAddress(), address.getPort(),
+                user.getUserName());
     }
 
     public CdrService getCdrService() {
@@ -491,6 +492,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
             m_dateFormat = dateFormat;
         }
     }
+
     /**
      * Maps Active call retrieved from callresolver active calls REST service
      */
@@ -530,6 +532,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
         }
 
     }
+
     @Override
     public Collection<GlobalFeature> getAvailableGlobalFeatures(FeatureManager featureManager) {
         return null;
@@ -541,8 +544,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
     }
 
     @Override
-    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type,
-            Location requester) {
+    public Collection<Address> getAvailableAddresses(AddressManager manager, AddressType type, Location requester) {
         if (!type.equals(CDR_API)) {
             return null;
         }
@@ -603,8 +605,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
             return null;
         }
 
-        ArchiveDefinition def = new ArchiveDefinition(ARCHIVE,
-                "$(sipx.SIPX_BINDIR)/sipxcdr-archive --backup %s",
+        ArchiveDefinition def = new ArchiveDefinition(ARCHIVE, "$(sipx.SIPX_BINDIR)/sipxcdr-archive --backup %s",
                 "$(sipx.SIPX_BINDIR)/sipxcdr-archive --restore %s");
         return Collections.singleton(def);
     }

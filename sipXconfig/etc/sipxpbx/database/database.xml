@@ -446,6 +446,7 @@
     <!-- sipx-version version="14" -->
     <antcall target="change-on-restore-update1" />
     <antcall target="iptables-call-rate-limit" />
+  	<antcall target="branch-timezone" />
   </target>
 
   <target name="plugin-patches">
@@ -1327,7 +1328,9 @@
   <target name="iptables-call-rate-limit" unless="iptables-call-rate-limit">
 	<db-patch patch="iptables-call-rate-limit"/>
   </target>
-
+  <target name="branch-timezone" unless="branch-timezone">
+    <db-patch patch="branch-timezone"/>
+  </target>
   <!--
     - SUPPORT UTILITIES
   -->
