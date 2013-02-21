@@ -22,10 +22,13 @@ import org.sipfoundry.sipxconfig.feature.LocationFeature;
 public interface MongoManager {
     public static final String MONGO = "mongo";
     public static final String ARBITOR = "mongoArbiter";
+    public static final String ACTIVE = "Active";
     public static final AddressType ADDRESS_ID = new AddressType(MONGO, MongoSettings.SERVER_PORT);
     public static final AddressType ARBITOR_ADDRESS_ID = new AddressType(ARBITOR, MongoSettings.ARBITER_PORT);
     public static final LocationFeature FEATURE_ID = new LocationFeature(MONGO);
     public static final LocationFeature ARBITER_FEATURE = new LocationFeature(ARBITOR);
+    public static final LocationFeature ACTIVE_ARBITER = new LocationFeature(MONGO + ACTIVE);
+    public static final LocationFeature ACTIVE_DATABASE = new LocationFeature(ARBITOR + ACTIVE);
 
     public MongoSettings getSettings();
 

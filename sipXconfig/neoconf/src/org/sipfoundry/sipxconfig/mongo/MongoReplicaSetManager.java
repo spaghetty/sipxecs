@@ -91,7 +91,6 @@ public class MongoReplicaSetManager {
         } catch (Exception ex) {
             LOG.error("Failed to check replica set state!");
         }
-
     }
 
     public void initialize() {

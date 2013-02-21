@@ -40,7 +40,7 @@ public class MongoServer {
     private String m_optimeDate;
     private String m_lastHeartbeat;
     private String m_pingMs;
-    private String m_errMsg = NA;
+    private String m_errMsg;
     private boolean m_configured;
 
     public MongoServer(BasicDBObject dbo) {
