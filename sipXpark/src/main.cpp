@@ -18,6 +18,7 @@
 #include <os/OsConfigDb.h>
 #include <os/UnixSignals.h>
 #include <os/OsTimer.h>
+#include <os/OsMsgQ.h>
 #include <net/NameValueTokenizer.h>
 #include <net/SipPublishContentMgr.h>
 #include <persist/SipPersistentSubscriptionMgr.h>
@@ -306,6 +307,7 @@ void signal_handler(int sig) {
 
 int main(int argc, char* argv[])
 {
+    {
     char* pidFile = NULL;
     for(int i = 1; i < argc; i++) {
         if(strncmp("-v", argv[i], 2) == 0) {
@@ -320,6 +322,8 @@ int main(int argc, char* argv[])
     }
     signal(SIGHUP, signal_handler); // catch hangup signal
     signal(SIGTERM, signal_handler); // catch kill signal
+
+    OsMsgQShared::setQueuePreference(OsMsgQShared::QUEUE_LIMITED);
 
     // Configuration Database (used for OsSysLog)
     OsConfigDb configDb;
@@ -672,13 +676,15 @@ int main(int argc, char* argv[])
 
     }
 
+    // Flush the log file
+    Os::Logger::instance().flush();
+    };  //WARN: The code above is put in {} to make sure that all timers are destroyed before
+        // calling the terminateTimerService. Do not change or otherwise it will leak on exit.
+
     //
     // Terminate the timer thread
     //
     OsTimer::terminateTimerService();
-
-    // Flush the log file
-    Os::Logger::instance().flush();
 
     // Say goodnight Gracie...
     return 0;
