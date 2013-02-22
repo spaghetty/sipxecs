@@ -18,8 +18,10 @@ package org.sipfoundry.sipxconfig.mongo;
 
 import static java.lang.String.format;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -47,7 +49,9 @@ import com.mongodb.MongoException;
  */
 public class MongoReplicaSetManager {
     private static final Log LOG = LogFactory.getLog(MongoReplicaSetManager.class);
+    private static final String SERVER_ID = "_id";
     private static final String MEMBERS = "members";
+    private static final String VOTES = "votes";
     private static final String HOST = "host";
     private static final String CHECK_COMMAND = "rs.config()";
     private static final String INIT_COMMAND = "rs.initiate({\"_id\" : \"sipxecs\", \"version\" : 1, \"members\" : "
@@ -56,6 +60,7 @@ public class MongoReplicaSetManager {
     private static final String REMOVE_SERVER_COMMAND = "rs.remove(\"%s\")";
     private static final String STEP_DOWN_COMMAND = "rs.stepDown()";
     private static final String RENAME_PRIMARY_COMMAND = "c = rs.config(); c.members[0].host = '%s'; rs.reconfig(c)";
+    private static final String VOTER_COMMAND = "c = rs.config(); c.members[%d].votes = %d; rs.reconfig(c)";
     private static final String ADD_ARBITER_COMMAND = "rs.addArb(\"%s\")";
     private static final String GET_STATUS_COMMAND = "rs.status()";
     private static final String COMMAND_FORCE_RECONFIG = "rs.reconfig(%s, { force : true })";
@@ -111,16 +116,35 @@ public class MongoReplicaSetManager {
         }
     }
 
-    public List<MongoServer> getMongoServers() {
-        List<MongoServer> servers = new LinkedList<MongoServer>();
-        DB ds = m_localReplicasetDb.getDb();
+    public List<MongoServer> getMongoServers(boolean readFromLocal, boolean votingDetails) {
+        Map<Integer, MongoServer> rsStatus = new LinkedHashMap<Integer, MongoServer>();
+        DB ds;
+        if (readFromLocal) {
+            ds = m_localDb.getDb();
+        } else {
+            ds = m_localReplicasetDb.getDb();
+        }
         String errmsg = "&err.read.localMongo";
         try {
             BasicBSONObject status = MongoUtil.runCommand(ds, GET_STATUS_COMMAND);
             BasicDBList members = (BasicDBList) status.get(MEMBERS);
             for (Object obj : members) {
                 BasicDBObject server = (BasicDBObject) obj;
-                servers.add(new MongoServer(server));
+                MongoServer mongoServer = new MongoServer(server);
+                rsStatus.put(mongoServer.getId(), mongoServer);
+            }
+            if (votingDetails) {
+                // query rs.config and found out voting / non voting members
+                BasicBSONObject config = MongoUtil.runCommand(ds, CHECK_COMMAND);
+                BasicDBList configMembers = (BasicDBList) config.get(MEMBERS);
+                for (Object configObj : configMembers) {
+                    BasicDBObject server = (BasicDBObject) configObj;
+                    Integer id = server.getInt(SERVER_ID);
+                    MongoServer mongoServer = rsStatus.get(id);
+                    if (mongoServer != null && server.containsField(VOTES)) {
+                        mongoServer.setVotingMember(server.getInt(VOTES) > 0);
+                    }
+                }
             }
         } catch (MongoException.Network e) {
             LOG.error(errmsg, e);
@@ -129,7 +153,7 @@ public class MongoReplicaSetManager {
             LOG.error(errmsg, e);
             throw new UserException(errmsg);
         }
-        return servers;
+        return new ArrayList<MongoServer>(rsStatus.values());
     }
 
     public void addInReplicaSet(String name) {
@@ -138,7 +162,7 @@ public class MongoReplicaSetManager {
             cmd = format(ADD_ARBITER_COMMAND, name);
         }
         try {
-            BasicBSONObject result = MongoUtil.runCommand(m_localReplicasetDb.getDb(), cmd);
+            BasicBSONObject result = MongoUtil.runCommand(m_localDb.getDb(), cmd);
             MongoUtil.checkForError(result);
         } catch (MongoCommandException e) {
             LOG.warn("Failed to add in replica set", e);
@@ -150,13 +174,35 @@ public class MongoReplicaSetManager {
     public void removeFromReplicaSet(String name) {
         String cmd = format(REMOVE_SERVER_COMMAND, name);
         try {
-            BasicBSONObject result = MongoUtil.runCommand(m_localReplicasetDb.getDb(), cmd);
+            BasicBSONObject result = MongoUtil.runCommand(m_localDb.getDb(), cmd);
             MongoUtil.checkForError(result);
         } catch (MongoCommandException e) {
             LOG.warn("Failed to remove from replica set", e);
             throw new UserException("&err.remove.rs.member");
         }
         m_configManager.configureEverywhere(MongoManager.FEATURE_ID);
+    }
+
+    public void removeVoter(Integer id) {
+        modifyVoter(format(VOTER_COMMAND, id, 0));
+    }
+
+    public void addVoter(Integer id) {
+        modifyVoter(format(VOTER_COMMAND, id, 1));
+    }
+
+    private void modifyVoter(String cmd) {
+        String changingVoterFailed = "&err.voter.failed";
+        try {
+            BasicBSONObject result = MongoUtil.runCommand(m_localDb.getDb(), cmd);
+            if (result == null) {
+                throw new UserException(changingVoterFailed);
+            }
+            MongoUtil.checkForError(result);
+        } catch (MongoCommandException e) {
+            LOG.warn("Failed to change voters from replica set", e);
+            throw new UserException(changingVoterFailed);
+        }
     }
 
     public void stepDown() {
@@ -171,13 +217,12 @@ public class MongoReplicaSetManager {
 
     public void forceReconfig() {
         try {
-            String id = "_id";
             BasicDBObject config = new BasicDBObject();
-            config.put(id, "sipxecs");
+            config.put(SERVER_ID, "sipxecs");
             config.put("version", 1);
             BasicDBList members = new BasicDBList();
             BasicDBObject primary = new BasicDBObject();
-            primary.put(id, 0);
+            primary.put(SERVER_ID, 0);
             primary.put(HOST, format("%s:%d", m_primaryFqdn, MongoSettings.SERVER_PORT));
             primary.put("priority", 2);
             members.add(primary);

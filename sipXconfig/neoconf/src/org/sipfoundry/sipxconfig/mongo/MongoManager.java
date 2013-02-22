@@ -17,6 +17,7 @@
 package org.sipfoundry.sipxconfig.mongo;
 
 import org.sipfoundry.sipxconfig.address.AddressType;
+import org.sipfoundry.sipxconfig.alarm.AlarmDefinition;
 import org.sipfoundry.sipxconfig.feature.LocationFeature;
 
 public interface MongoManager {
@@ -29,6 +30,12 @@ public interface MongoManager {
     public static final LocationFeature ARBITER_FEATURE = new LocationFeature(ARBITOR);
     public static final LocationFeature ACTIVE_ARBITER = new LocationFeature(MONGO + ACTIVE);
     public static final LocationFeature ACTIVE_DATABASE = new LocationFeature(ARBITOR + ACTIVE);
+    public static final AlarmDefinition MONGO_FATAL_REPLICATION_STOP =
+            new AlarmDefinition("MONGO_FATAL_REPLICATION_STOP");
+    public static final AlarmDefinition MONGO_FAILED_ELECTION = new AlarmDefinition("MONGO_FAILED_ELECTION", 1);
+    public static final AlarmDefinition MONGO_MEMBER_DOWN = new AlarmDefinition("MONGO_MEMBER_DOWN", 2);
+    public static final AlarmDefinition MONGO_NODE_STATE_CHANGED = new AlarmDefinition("MONGO_NODE_STATE_CHANGED");
+    public static final AlarmDefinition MONGO_CANNOT_SEE_MAJORITY = new AlarmDefinition("MONGO_CANNOT_SEE_MAJORITY");
 
     public MongoSettings getSettings();
 

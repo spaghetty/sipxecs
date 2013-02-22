@@ -78,6 +78,7 @@ SipTransaction::SipTransaction(SipMessage* initialMsg,
    , mIsBusy(FALSE)
    , mProvoExtendsTimer(FALSE)
    , mWaitingList(NULL)
+   , _markedForDeletion(false)
 {
 
 #  ifdef ROUTE_DEBUG
@@ -282,6 +283,19 @@ SipTransaction::~SipTransaction()
 
         delete mWaitingList;
         mWaitingList = NULL;
+    }
+
+    //
+    // Break the parent/child chain
+    //
+    if (mpParentTransaction)
+      mpParentTransaction->unlinkChild(this);
+
+    UtlSListIterator iterator(mChildTransactions);
+    SipTransaction* childTransaction = NULL;
+    while ((childTransaction = (SipTransaction*) iterator()))
+    {
+      childTransaction->mpParentTransaction = 0;
     }
 }
 
@@ -4468,16 +4482,12 @@ void SipTransaction::deleteTimers()
                       this, timer);
 #       endif
 
-        // If the timer has not fired, we must delete the dependent
-        // SipMessageEvent.
-        // If the timer has fired, the consequent OsEventMsg is on the
-        // queue of the SipUserAgent, and SipUserAgent::handleMessage will
-        // delete the dependent SipMessageEvent.
-        if (timer->stop(FALSE /* do not block */) == OS_SUCCESS)
-        {
-            SipMessageEvent* pMsgEvent = (SipMessageEvent*) timer->getUserData();
-            delete pMsgEvent;
-        }
+        //
+        // The timer owns the event.  we must delete it here
+        //
+        timer->stop(FALSE /* do not block */);
+        SipMessageEvent* pMsgEvent = (SipMessageEvent*) timer->getUserData();
+        delete pMsgEvent;
 
         // We always delete the timer.
         delete timer;
@@ -4587,6 +4597,11 @@ void SipTransaction::cancelChildren(SipUserAgent& userAgent,
        childTransaction->cancel(userAgent,
                                 transactionList);
     }
+}
+
+void SipTransaction::unlinkChild(SipTransaction* pChild)
+{
+  mChildTransactions.removeReference(pChild);
 }
 
 void SipTransaction::linkChild(SipTransaction& newChild)
@@ -5169,7 +5184,13 @@ void SipTransaction::touch()
     // savings.
     OsTime time;
     OsDateTime::getCurTimeSinceBoot(time);
-    mTimeStamp = time.seconds();
+
+    //
+    // if the transaction is already in completed state, do not reset the timestamp
+    //
+    if (getState() < TRANSACTION_COMPLETE)
+        mTimeStamp = time.seconds();
+
     //osPrintf("SipTransaction::touch seconds: %ld usecs: %ld\n",
     //    time.seconds(), time.usecs());
     //mTimeStamp = OsDateTime::getSecsSinceEpoch();
@@ -5186,7 +5207,11 @@ void SipTransaction::touch()
 
 void SipTransaction::touchBelow(int newDate)
 {
-    mTimeStamp = newDate;
+    //
+    // if the transaction is already in completed state, do not reset the timestamp
+    //
+    if (getState() < TRANSACTION_COMPLETE)
+      mTimeStamp = newDate;
 
 #ifdef TEST_TOUCH
     UtlString serialized;
