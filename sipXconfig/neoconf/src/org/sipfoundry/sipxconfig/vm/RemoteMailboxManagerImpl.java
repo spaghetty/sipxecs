@@ -24,7 +24,6 @@ import javax.xml.transform.Source;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.address.Address;
-import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.springframework.web.client.RestClientException;
@@ -49,7 +48,6 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
     private XPathOperations m_xPathTemplate;
     private RestTemplate m_restTemplate;
     private Address m_lastGoodIvrNode;
-    private CoreContext m_coreContext;
 
     @Override
     public boolean isEnabled() {
@@ -104,7 +102,7 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
                             @Override
                             public Voicemail mapNode(Node node, int pos) {
                                 return new RemoteVoicemail((Element) node, (String) urlVariables[0],
-                                        (String) urlVariables[1], m_coreContext.loadUserByUserName(
+                                        (String) urlVariables[1], getCoreContext().loadUserByUserName(
                                                 (String) urlVariables[0]).getTimezone());
                             }
                         });
@@ -218,7 +216,4 @@ public class RemoteMailboxManagerImpl extends AbstractMailboxManager implements 
         m_lastGoodIvrNode = lastGoodIvrNode;
     }
 
-    public void setCoreContext(CoreContext coreContext) {
-        m_coreContext = coreContext;
-    }
 }
