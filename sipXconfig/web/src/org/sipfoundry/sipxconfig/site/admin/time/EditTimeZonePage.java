@@ -11,11 +11,9 @@ package org.sipfoundry.sipxconfig.site.admin.time;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.TimeZone;
 
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
-import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
@@ -23,7 +21,6 @@ import org.apache.tapestry.form.StringPropertySelectionModel;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
-import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 import org.sipfoundry.sipxconfig.time.NtpManager;
 
@@ -66,10 +63,7 @@ public abstract class EditTimeZonePage extends UserBasePage implements PageBegin
                 timezoneList.toArray(new String[timezoneList.size()]));
         setTimezoneTypeModel(model);
         if (!event_.getRequestCycle().isRewinding()) {
-            //String utz = getUser().getSettingValue("timezone/timezone");
-            //if (utz != null) {
-                setTimezoneType(getUser().getTimezone().getID());
-            //}
+            setTimezoneType(getUser().getTimezone().getID());
         }
     }
 

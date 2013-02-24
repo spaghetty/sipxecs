@@ -25,7 +25,6 @@ import org.sipfoundry.sipxconfig.imbot.ImBot;
 import org.sipfoundry.sipxconfig.ivr.Ivr;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.admin.time.EditTimeZonePage;
-import org.sipfoundry.sipxconfig.site.admin.time.EditTimeZoneSettings;
 import org.sipfoundry.sipxconfig.site.common.BeanNavigation;
 import org.sipfoundry.sipxconfig.site.moh.MusicOnHoldPage;
 import org.sipfoundry.sipxconfig.site.speeddial.SpeedDialPage;
@@ -86,13 +85,13 @@ public abstract class UserNavigation extends BeanNavigation {
 
     @InjectPage(value = MusicOnHoldPage.PAGE)
     public abstract MusicOnHoldPage getMusicOnHoldPage();
-    
+
     @InjectObject(value = "spring:mailboxManager")
     public abstract MailboxManager getMailboxManager();
 
     @InjectPage(value = EditTimeZonePage.PAGE)
     public abstract EditTimeZonePage getEditTimeZonePage();
-    
+
     public IPage editCallForwarding(Integer userId) {
         UserCallForwarding page = getUserCallForwardingPage();
         page.setUserId(userId);
@@ -190,7 +189,7 @@ public abstract class UserNavigation extends BeanNavigation {
         page.setReturnPage(EditTimeZonePage.PAGE);
         return page;
     }
-    
+
     public String getGroupsToHide() {
         List<String> names = new LinkedList<String>();
         names.add("voicemail");

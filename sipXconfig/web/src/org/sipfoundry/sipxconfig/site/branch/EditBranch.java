@@ -73,7 +73,7 @@ public abstract class EditBranch extends PageWithCallback implements PageBeginRe
         StringPropertySelectionModel model = new StringPropertySelectionModel(
                 timezoneList.toArray(new String[timezoneList.size()]));
         setTimezoneTypeModel(model);
-        
+
         setBranch(branch);
     }
 

@@ -166,7 +166,7 @@ public class User extends AbstractUser implements Replicable {
 
     public TimeZone getTimezone() {
         if (getUserBranch() != null && (Boolean) getSettingTypedValue("timezone/useBranchTimezone")) {
-            return TimeZone.getTimeZone((getInheritedBranch().getTimeZone()));
+            return TimeZone.getTimeZone((getUserBranch().getTimeZone()));
         }
 
         if (getSettingValue(TZ) != null) {
