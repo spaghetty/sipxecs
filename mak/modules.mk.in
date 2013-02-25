@@ -122,4 +122,7 @@ lib = $(lib_$(DISTRO_OS)_$(DISTRO_VER))
 
 all =  $(lib) $(sipx) $(app)
 
-oss_core_REPO = git://github.com/joegen/oss_core.git
+$(SRC)/oss_core :
+	git clone git://github.com/joegen/oss_core.git $*.git
+	mv $*.git $@
+
