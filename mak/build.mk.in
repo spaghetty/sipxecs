@@ -45,11 +45,6 @@ help.{1|2|6}.autoreconf=Run autoreconf on each project
 	cd $(SRC)/$(PROJ); \
 	  autoreconf -if
 
-# TODO: Needs to support switching branches automatically
-$(foreach P,$(sipx) $(app) $(lib),$(SRC)/$(P)) : $(SRC)/% :
-	git clone $($*_REPO) $*.git
-	mv $*.git $@
-
 help.{1|2|6}.configure = Run configure on each project
 %.configure :
 	test -d $(PROJ) || mkdir -p $(PROJ)

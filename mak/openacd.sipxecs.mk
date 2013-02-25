@@ -19,7 +19,7 @@ openacd.autoreconf:
 
 openacd.configure:;
 	cd $(SRC)/$(PROJ); \
-	  configure
+	  ./configure
 
 openacd.dist :
 	cd $(SRC)/$(PROJ); \

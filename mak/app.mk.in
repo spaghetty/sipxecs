@@ -50,11 +50,14 @@ lang = \
   sipXlang-pt_BR \
   sipXlang-zh
 
+$(addprefix $(SRC)/,$(lang) $(sf_git) openfire) : $(SRC)/% :
+	git clone git://github.com/dhubler/$* $*.git
+	mv $*.git $@
+
 # broken
 #telecats = 
 #  sipXcustomCallerId
 
-# Repositories
-$(foreach R,$(lang) $(sf_git) openfire,$(eval $(R)_REPO = git://github.com/dhubler/$(R).git))
-$(foreach R,$(telecats),$(eval $(R)_REPO = git://github.com/Telecats/$(R).git))
-$(foreach R,$(karel),$(eval $(R)_REPO = git://github.com/sayarsoft/$(R).git))
+$(addprefix $(SRC)/,$(telecats)) : $(SRC)/% :
+	git clone git://github.com/Telecats/$* $*.git
+	mv $*.git $@
