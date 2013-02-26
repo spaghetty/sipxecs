@@ -106,9 +106,9 @@ public class OpenAcdConfiguration implements ConfigProvider, FeatureListener, Be
         wtr.write("    %% Add plugins here");
         wtr.write(NEW_LINE);
         if (pluginDefinitions.isEmpty()) {
-            wtr.write("    , {plugins, [oacd_freeswitch, oacd_web, oacd_spx]}");
+            wtr.write("    , {plugins, [oacd_freeswitch, oacd_web, oacd_dialplan, oacd_spx]}");
         } else {
-            wtr.write("    , {plugins, [oacd_freeswitch, oacd_web, oacd_spx, "
+            wtr.write("    , {plugins, [oacd_freeswitch, oacd_web, oacd_dialplan, oacd_spx, "
                     + join(pluginDefinitions.toArray(), COMMA) + CLOSE);
         }
         wtr.write(NEW_LINE);

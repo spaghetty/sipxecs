@@ -1,7 +1,7 @@
 [{openacd, [
   {rsakey, "$(sipx.OPENACD_KEYDIR)/openacd.key"}
     %% Add plugins here
-    , {plugins, [oacd_freeswitch, oacd_web, oacd_spx, oacd_ouc]}
+    , {plugins, [oacd_freeswitch, oacd_web, oacd_dialplan, oacd_spx, oacd_ouc]}
     , {agent_auth_storage, spx_agent_auth}
     , {call_queue_config_storage, spx_call_queue_config}
 ]},
