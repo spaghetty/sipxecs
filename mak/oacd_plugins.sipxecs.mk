@@ -22,7 +22,7 @@ $(oacd:=.dist) : %.dist : $(SRC)/%
 	cd $(SRC)/$(PROJ); \
 	  make dist
 
-$(addprefix $(SRC)/,$(oacd)) :
+$(addprefix $(SRC)/,$(oacd)) : $(SRC)/% :
 	! test -d $@.git || rm -rf $@.git
-	git clone git@github.com:sipxopenacd/oacd_dialplan.git $@.git
+	git clone git@github.com:sipxopenacd/$*.git $@.git
 	mv $@.git $@
