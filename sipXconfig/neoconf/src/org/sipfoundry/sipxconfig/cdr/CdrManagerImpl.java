@@ -37,6 +37,8 @@ import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DateUtils;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
@@ -157,7 +159,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
      * on it.
      */
     private void dump(CdrsWriter resultReader, Date from, Date to, CdrSearch search, User user, int limit)
-        throws IOException {
+            throws IOException {
         PreparedStatementCreator psc = new SelectAll(from, to, search, user, m_tz, limit, 0);
         try {
             resultReader.writeHeader();
@@ -388,8 +390,10 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
             cdr.setCalleeRoute(rs.getString(CALLEE_ROUTE));
             cdr.setCalleeContact(rs.getString(CALLEE_CONTACT));
             cdr.setCallerContact(rs.getString(CALLER_CONTACT));
-            Date startTime = rs.getTimestamp(START_TIME, m_calendar);
-            cdr.setStartTime(startTime);
+            Date startTime = rs.getTimestamp(START_TIME, Calendar.getInstance(TimeZone.getTimeZone("GMT")));
+
+            cdr.setStartTime((new DateTime(startTime).withZone(DateTimeZone.forTimeZone(m_calendar.getTimeZone()))
+                    .toLocalDateTime().toDate()));
             Date connectTime = rs.getTimestamp(CONNECT_TIME, m_calendar);
             cdr.setConnectTime(connectTime);
             cdr.setEndTime(rs.getTimestamp(END_TIME, m_calendar));
@@ -398,6 +402,12 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
             cdr.setTermination(Termination.fromString(termination));
             m_cdrs.add(cdr);
         }
+    }
+
+    public static Date convertJodaTimezone(DateTime date, String srcTz, String destTz) {
+        DateTime srcDateTime = date.toDateTime(DateTimeZone.forID(srcTz));
+        DateTime dstDateTime = srcDateTime.withZone(DateTimeZone.forID(destTz));
+        return dstDateTime.toLocalDateTime().toDateTime().toDate();
     }
 
     static class ColumnInfo {
@@ -419,7 +429,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
         private Calendar m_calendar;
 
         public ColumnInfo(ResultSet rs, int i, Calendar calendar, Format dateFormat, Format aorFormat)
-            throws SQLException {
+                throws SQLException {
             m_fieldIndex = i;
             m_calendar = calendar;
             m_rsIndex = rs.findColumn(FIELDS[m_fieldIndex]);
