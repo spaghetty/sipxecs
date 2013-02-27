@@ -17,7 +17,6 @@ lib += $(oacd)
 
 $(foreach P,$(oacd), \
   $(eval $(P)_PACKAGE_REVISION = $(shell cd $(SRC)/$(P); git describe --long --always | cut -d- -f2-3 | sed 's/-/./g')) \
-  $(eval $(P)_SOURCES = $($(P)_TAR)) \
   $(eval $(P)_SRPM_DEFS = --define "buildno $($(P)_PACKAGE_REVISION)") \
   $(eval $(P)_RPM_DEFS = --define="buildno $($(P)_PACKAGE_REVISION)") \
 )
@@ -27,12 +26,14 @@ sipxopenacd_VER = $(PACKAGE_VERSION)
 $(foreach P,$(oacd_class_1), \
   $(eval $(P)_SRPM = $(P)-$($(P)_VER)-$($(P)_PACKAGE_REVISION).src.rpm) \
   $(eval $(P)_TAR = $(SRC)/$(P)/$(P)-$($(P)_VER).tar.gz) \
+  $(eval $(P)_SOURCES = $($(P)_TAR)) \
 )
 
 $(foreach P,$(oacd_class_2), \
   $(eval $(P)_VER = 2.0.0) \
   $(eval $(P)_SRPM = erlang-$(P)-$($(P)_VER)-$($(P)_PACKAGE_REVISION).src.rpm) \
   $(eval $(P)_TAR = $(SRC)/$(P)/erlang-$(P)-$($(P)_VER).tar.gz) \
+  $(eval $(P)_SOURCES = $($(P)_TAR)) \
 )
 
 # n/a - not autoconf projects
