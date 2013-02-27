@@ -19,3 +19,6 @@
 [submodule "sipxopenacd"]
 	path = sipxopenacd
 	url = git@github.com:sipxopenacd/sipxplugin
+[submodule "openacd"]
+	path = openacd
+	url = git@github.com:sipxopenacd/openacd.git
