@@ -34,13 +34,3 @@ $(oacd_all:=.autoreconf) $(oacd_all:=.configure):;
 $(oacd_all:=.dist): %.dist : $(SRC)/%
 	cd $(SRC)/$(PROJ); \
 	  make dist
-
-$(addprefix $(SRC)/,$(oacd)) : $(SRC)/% :
-	! test -d $@.git || rm -rf $@.git
-	git clone git@github.com:sipxopenacd/$*.git $@.git
-	mv $@.git $@
-
-$(SRC)/sipxopenacd :
-	! test -d $@.git || rm -rf $@.git
-	git clone git@github.com:sipxopenacd/sipxplugin.git $@.git
-	mv $@.git $@

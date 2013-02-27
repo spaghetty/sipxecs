@@ -7,3 +7,15 @@
 [submodule "sipXhomer"]
 	path = sipXhomer
 	url = git://github.com/dhubler/sipXhomer.git
+[submodule "oacd_freeswitch"]
+	path = oacd_freeswitch
+	url = git@github.com:sipxopenacd/oacd_freeswitch
+[submodule "oacd_dialplan"]
+	path = oacd_dialplan
+	url = git@github.com:sipxopenacd/oacd_dialplan
+[submodule "oacd_web"]
+	path = oacd_web
+	url = git@github.com:sipxopenacd/oacd_web
+[submodule "sipxopenacd"]
+	path = sipxopenacd
+	url = git@github.com:sipxopenacd/sipxplugin
