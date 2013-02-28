@@ -202,7 +202,7 @@ public abstract class UserGroupSettings extends GroupSettings {
         Setting settings = group.inherhitSettingsForEditing(getBean());
         setSettings(settings);
 
-        if (getTab().equals(TIMEZONE_TAB)) {
+        if (null != getTab() && getTab().equals(TIMEZONE_TAB)) {
             // Init. the timezone dropdown menu.
             List<String> timezoneList = getTimeManager().getAvailableTimezones();
 
