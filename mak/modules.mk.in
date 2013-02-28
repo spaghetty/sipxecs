@@ -4,7 +4,7 @@
 # order is import for some of these as afar as building dependencies first
 # consult spec files for authority on dependencies before changing the order
 
-deps = $(1) $($(1)_DEPS)
+deps = $($(1)_DEPS) $(1)
 
 sipXtackLib_DEPS = $(call deps,sipXportLib)
 sipXmediaLib_DEPS = $(call deps,sipXtackLib)
