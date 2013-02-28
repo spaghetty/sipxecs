@@ -17,22 +17,6 @@
 #ifndef MONGODB_H
 #define	MONGODB_H
 
-#ifndef BOOST_FILESYSTEM_VERSION
-#define BOOST_FILESYSTEM_VERSION 3
-#endif
-
-// This is correct header, but causes compiler issue because mongo's pch.h
-// file does not user this header.  Instead replace w/3 equivalent headers
-//#include <boost/filesystem.hpp>
-#include <boost/filesystem/convenience.hpp>
-#include <boost/filesystem/exception.hpp>
-#include <boost/filesystem/operations.hpp>
-
-//#ifndef BOOST_FILESYSTEM2_NARROW_ONLY
-//#define BOOST_FILESYSTEM2_NARROW_ONLY 1
-//#endif
-
-
 #include <queue>
 #include <vector>
 
@@ -71,6 +55,7 @@ typedef boost::error_info<struct tag_errmsg, std::string> errmsg_info;
 
 namespace MongoDB
 {
+   typedef boost::scoped_ptr<mongo::ScopedDbConnection> ScopedDbConnectionPtr;
 
 class ConfigError: public boost::exception, public std::exception {
 public:
@@ -121,9 +106,9 @@ public:
 
 	static bool	testConnection(const mongo::ConnectionString &connectionString, const std::string& errmsg);
 
-	const mongo::ConnectionString& getConnectionString() const
+        const mongo::ConnectionString& getConnectionString() const
 	{
-		return _connectionString;
+              return _connectionString;
 	}
 	;
 
