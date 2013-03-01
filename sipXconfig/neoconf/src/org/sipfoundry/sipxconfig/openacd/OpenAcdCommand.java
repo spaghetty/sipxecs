@@ -26,12 +26,10 @@ public class OpenAcdCommand extends OpenAcdExtension {
     public static List<FreeswitchAction> getDefaultActions(Location location) {
         List<FreeswitchAction> actions = new LinkedList<FreeswitchAction>();
         actions.add(createAction(FreeswitchAction.PredefinedAction.erlang_sendmsg.toString(),
-                "agent_dialplan_listener  " + "openacd@" + location.getFqdn()
-                        + " agent_login ${sip_from_user} pstn ${sip_from_uri}"));
+                "oacd_dialplan_listener  " + "openacd@" + location.getFqdn() + " agent_login ${sip_from_user}"));
         actions.add(createAction(FreeswitchAction.PredefinedAction.answer.toString(), null));
         actions.add(createAction(FreeswitchAction.PredefinedAction.sleep.toString(), "2000"));
         actions.add(createAction(FreeswitchAction.PredefinedAction.hangup.toString(), "NORMAL_CLEARING"));
         return actions;
     }
-
 }
