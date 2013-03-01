@@ -159,7 +159,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
      * on it.
      */
     private void dump(CdrsWriter resultReader, Date from, Date to, CdrSearch search, User user, int limit)
-            throws IOException {
+        throws IOException {
         PreparedStatementCreator psc = new SelectAll(from, to, search, user, m_tz, limit, 0);
         try {
             resultReader.writeHeader();
@@ -429,7 +429,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
         private Calendar m_calendar;
 
         public ColumnInfo(ResultSet rs, int i, Calendar calendar, Format dateFormat, Format aorFormat)
-                throws SQLException {
+            throws SQLException {
             m_fieldIndex = i;
             m_calendar = calendar;
             m_rsIndex = rs.findColumn(FIELDS[m_fieldIndex]);
