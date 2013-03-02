@@ -41,7 +41,6 @@ sipx_core = \
 # sipxecs projects that are NOT essential for a running communication system
 sipx_extra = \
   sipXacccode \
-  sipXopenacd \
   sipXviewer \
   sipXimbot \
   sipXexample \
