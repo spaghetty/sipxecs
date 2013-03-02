@@ -36,29 +36,19 @@ $(foreach P,$(oacd_class_2), \
   $(eval $(P)_SOURCES = $($(P)_TAR)) \
 )
 
-ifneq ($(filter erlang,$(lib)),)
-erlang_DEPS_OPT = $(call deps,erlang)
-endif
-gen_server_mock_DEPS = $(erlang_DEPS_OPT)
-erlmmongo_DEPS = $(erlang_DEP_OPT)
-erlang-ej_DEPS = $(erlang_DEP_OPT)
-erlang-cowboy_DEPS = $(erlang_DEP_OPT)
-erlang-mimetypes_DEPS = $(erlang_DEP_OPT)
-erlang-ejrpc2_DEPS = $(call deps,erlang-ej)
-openacd_DEPS = $(call deps,erlang-ejrpc2) $(call deps,erlang-gen_server_mock) $(call deps,erlmongo)
-oacd_web_DEPS = $(call deps,openacd) $(call deps,erlang-cowboy) $(call deps,erlang-mimetypes)
+openacd_DEPS = $(call deps,erlang-ejrpc2 erlang-gen_server_mock erlmongo)
+# sipxopenacd is treated like a lib because does not confrom yet to sipx build policies
+sipxopenacd_DEPS = $(call deps,erlmongo openacd sipXconfig)
+oacd_web_DEPS = $(call deps,openacd erlang-cowboy erlang-mimetypes)
 oacd_dialplan_DEPS = $(call deps,openacd)
 oacd_freeswitch_DEPS = $(call deps,openacd)
 
-# n/a - not autoconf projects
-$(oacd:=.autoreconf) $(oacd:=.configure):;
-
-openacd.dist:
+openacd.dist: $(openacd_GIT_SUBMODULE)
 	cd $(SRC)/$(PROJ); \
 	  autoreconf -if; \
 	  ./configure; \
 	  make dist
 
-sipxopenacd.dist $(oacd_class_2:=.dist):
+sipxopenacd.dist $(oacd_class_2:=.dist): %.dist : $$($$*_GIT_SUBMODULE)
 	cd $(SRC)/$(PROJ); \
 	  make dist
