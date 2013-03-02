@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -52,6 +53,10 @@ public class OpenfireConfigurationFile {
     private String m_providerLdapUserClassName;
     private String m_providerLdapVCardClassName;
     private String m_multipleLdapConfFile;
+    private boolean m_clusteringState;
+    private String m_openfireTemplate;
+
+    private Map<String, String> m_additionalProperties;
 
     private LdapManager m_ldapManager;
     private CoreContext m_coreContext;
@@ -71,7 +76,7 @@ public class OpenfireConfigurationFile {
             context.put("lockoutProvider", PROVIDER_LOCKOUT_CLASSNAME);
             context.put("securityAuditProvider", PROVIDER_SECURITY_AUDIT_CLASSNAME);
             context.put("sipxVcardProvider", m_providerVCardClassName);
-        } else if (allParams != null && !allParams.isEmpty()) {
+        } else if (!allParams.isEmpty()) {
             LdapConnectionParams ldapConnectionParams = allParams.get(0);
             boolean isLdapAnonymousAccess = (StringUtils.isBlank(ldapConnectionParams.getPrincipal())) ? true
                     : false;
@@ -84,9 +89,10 @@ public class OpenfireConfigurationFile {
         }
 
         context.put("authorizedUsernames", getAuthorizedUsernames());
+        context.put("clusteringState", m_clusteringState);
 
         try {
-            m_velocityEngine.mergeTemplate("openfire/openfire.vm", context, writer);
+            m_velocityEngine.mergeTemplate(m_openfireTemplate, context, writer);
         } catch (Exception e) {
             throw new IOException(e);
         }
@@ -114,7 +120,7 @@ public class OpenfireConfigurationFile {
      * When you have LDAP-Openfire configured different other users
      * can be added with admin rights.
      */
-    private String getAuthorizedUsernames() {
+    protected String getAuthorizedUsernames() {
         List<User> admins = m_coreContext.loadUserByAdmin();
         Set<String> authorizedList = new TreeSet<String>();
         authorizedList.add(ADMIN);
@@ -130,6 +136,10 @@ public class OpenfireConfigurationFile {
         m_ldapManager = ldapManager;
     }
 
+    protected LdapManager getLdapManager() {
+        return m_ldapManager;
+    }
+
     @Required
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
@@ -137,6 +147,10 @@ public class OpenfireConfigurationFile {
 
     public void setVelocityEngine(VelocityEngine velocityEngine) {
         m_velocityEngine = velocityEngine;
+    }
+
+    public VelocityEngine getVelocityEngine() {
+        return m_velocityEngine;
     }
 
     @Required
@@ -186,10 +200,26 @@ public class OpenfireConfigurationFile {
         m_multipleLdapConfFile = multipleLdapConfFile;
     }
 
+    public void setAdditionalProperties(Map<String, String> properties) {
+        m_additionalProperties = properties;
+    }
+
+    public Map<String, String> getAdditionalProperties() {
+        return m_additionalProperties;
+    }
+
+    public void setClusteringState(boolean state) {
+        m_clusteringState = state;
+    }
+
+    public void setOpenfireTemplate(String openfireTemplate) {
+        m_openfireTemplate = openfireTemplate;
+    }
+
     public static class LdapData {
-        private LdapConnectionParams m_ldapParams;
-        private AttrMap m_attrMap;
-        private boolean m_ldapAnonymousAccess;
+        private final LdapConnectionParams m_ldapParams;
+        private final AttrMap m_attrMap;
+        private final boolean m_ldapAnonymousAccess;
         public LdapData(LdapConnectionParams ldapParams, AttrMap attrMap) {
             m_ldapParams = ldapParams;
             m_attrMap = attrMap;
@@ -206,9 +236,9 @@ public class OpenfireConfigurationFile {
         public String getImAttribute() {
             String imAttribute = m_attrMap.getImAttributeName();
             String usernameAttribute = m_attrMap.getIdentityAttributeName();
-            //if im id is not mapped, default it to username - 
+            //if im id is not mapped, default it to username -
             //because this is a rule, when a user gets created the im id has to automatically be defaulted to username
-            return  imAttribute == null ? 
+            return  imAttribute == null ?
                     usernameAttribute == null ? StringUtils.EMPTY : usernameAttribute : imAttribute;
         }
 
