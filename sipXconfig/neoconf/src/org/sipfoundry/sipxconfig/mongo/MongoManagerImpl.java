@@ -21,7 +21,8 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.address.AddressManager;
 import org.sipfoundry.sipxconfig.address.AddressProvider;
@@ -51,7 +52,7 @@ import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
 public class MongoManagerImpl implements AddressProvider, FeatureProvider, MongoManager, ProcessProvider,
         SetupListener, FirewallProvider, AlarmProvider {
-    private static final Logger log = Logger.getLogger(MongoManagerImpl.class);
+    private static final Log LOG = LogFactory.getLog(MongoManagerImpl.class);
     private BeanWithSettingsDao<MongoSettings> m_settingsDao;
 
     @Override
@@ -78,7 +79,7 @@ public class MongoManagerImpl implements AddressProvider, FeatureProvider, Mongo
         LocationFeature feature = (type == ADDRESS_ID ? FEATURE_ID : ARBITER_FEATURE);
         Collection<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(feature);
         Collection<Address> addresses = Location.toAddresses(type, locations);
-        log.warn("Found " + locations.size() + " locations: " + addresses);
+        LOG.debug("Found " + locations.size() + " locations: " + addresses);
         return addresses;
     }
 
