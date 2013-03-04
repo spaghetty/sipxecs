@@ -64,7 +64,7 @@ public class MongoFactory {
     }
 
     @SuppressWarnings("resource")
-    private static String readConfig(String configFile) {
+    public static String readConfig(String configFile) {
         Properties p = new Properties();
         InputStream in = null;
         try {
