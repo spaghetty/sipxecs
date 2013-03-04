@@ -16,14 +16,14 @@ oacd = \
 lib += $(oacd)
 
 $(foreach P,$(oacd), \
-  $(eval $(P)_PACKAGE_REVISION = $(shell cd $(SRC)/$(P); git describe --long --always | cut -d- -f2-3 | sed 's/-/./g')) \
-  $(eval $(P)_SRPM_DEFS = --define "buildno $($(P)_PACKAGE_REVISION)") \
-  $(eval $(P)_RPM_DEFS = --define="buildno $($(P)_PACKAGE_REVISION)") \
 )
 
 openacd_VER = 2.0.0
 sipxopenacd_VER = $(PACKAGE_VERSION)
 $(foreach P,$(oacd_class_1), \
+  $(eval $(P)_PACKAGE_REVISION = $(shell cd $(SRC)/$(P); ../config/revision-gen $($(P)_VER))) \
+  $(eval $(P)_SRPM_DEFS = --define "buildno $($(P)_PACKAGE_REVISION)") \
+  $(eval $(P)_RPM_DEFS = --define="buildno $($(P)_PACKAGE_REVISION)") \
   $(eval $(P)_SRPM = $(P)-$($(P)_VER)-$($(P)_PACKAGE_REVISION).src.rpm) \
   $(eval $(P)_TAR = $(SRC)/$(P)/$(P)-$($(P)_VER).tar.gz) \
   $(eval $(P)_SOURCES = $($(P)_TAR)) \
@@ -31,6 +31,9 @@ $(foreach P,$(oacd_class_1), \
 
 $(foreach P,$(oacd_class_2), \
   $(eval $(P)_VER = 2.0.0) \
+  $(eval $(P)_PACKAGE_REVISION = $(shell cd $(SRC)/$(P); ../config/revision-gen $($(P)_VER))) \
+  $(eval $(P)_SRPM_DEFS = --define "buildno $($(P)_PACKAGE_REVISION)") \
+  $(eval $(P)_RPM_DEFS = --define="buildno $($(P)_PACKAGE_REVISION)") \
   $(eval $(P)_SRPM = erlang-$(P)-$($(P)_VER)-$($(P)_PACKAGE_REVISION).src.rpm) \
   $(eval $(P)_TAR = $(SRC)/$(P)/erlang-$(P)-$($(P)_VER).tar.gz) \
   $(eval $(P)_SOURCES = $($(P)_TAR)) \
@@ -49,6 +52,7 @@ openacd.dist: $(openacd_GIT_SUBMODULE)
 	  ./configure; \
 	  make dist
 
+.SECONDEXPANSION:
 sipxopenacd.dist $(oacd_class_2:=.dist): %.dist : $$($$*_GIT_SUBMODULE)
 	cd $(SRC)/$(PROJ); \
 	  make dist
