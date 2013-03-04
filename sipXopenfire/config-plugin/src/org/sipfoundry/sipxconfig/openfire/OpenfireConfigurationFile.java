@@ -31,6 +31,7 @@ import org.sipfoundry.sipxconfig.bulk.ldap.AttrMap;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapConnectionParams;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapSystemSettings;
+import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
 import org.sipfoundry.sipxconfig.common.AbstractUser;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -66,16 +67,11 @@ public class OpenfireConfigurationFile {
         VelocityContext context = new VelocityContext();
         LdapSystemSettings settings = m_ldapManager.getSystemSettings();
         boolean isEnableOpenfireConfiguration = settings.isEnableOpenfireConfiguration() && settings.isConfigured();
+        context.put("authorizedUsernames", getAuthorizedUsernames());
+        context.put("clusteringState", m_clusteringState);
         context.put("isEnableOpenfireConfiguration", isEnableOpenfireConfiguration);
         List<LdapConnectionParams> allParams = m_ldapManager.getAllConnectionParams();
         if (!isEnableOpenfireConfiguration || allParams == null || allParams.isEmpty()) {
-            context.put("adminProvider", PROVIDER_ADMIN_CLASSNAME);
-            context.put("authProvider", m_providerAuthClassName);
-            context.put("groupProvider", m_providerGroupClassName);
-            context.put("userProvider", m_providerUserClassName);
-            context.put("lockoutProvider", PROVIDER_LOCKOUT_CLASSNAME);
-            context.put("securityAuditProvider", PROVIDER_SECURITY_AUDIT_CLASSNAME);
-            context.put("sipxVcardProvider", m_providerVCardClassName);
         } else if (!allParams.isEmpty()) {
             LdapConnectionParams ldapConnectionParams = allParams.get(0);
             boolean isLdapAnonymousAccess = (StringUtils.isBlank(ldapConnectionParams.getPrincipal())) ? true
@@ -83,13 +79,7 @@ public class OpenfireConfigurationFile {
             context.put("isLdapAnonymousAccess", isLdapAnonymousAccess);
             context.put("ldapParams", ldapConnectionParams);
             context.put("attrMap", m_ldapManager.getAttrMap(ldapConnectionParams.getId()));
-            context.put("ldapAuthProvider", m_providerLdapAuthClassName);
-            context.put("ldapUserProvider", m_providerLdapUserClassName);
-            context.put("ldapVcardProvider", m_providerLdapVCardClassName);
         }
-
-        context.put("authorizedUsernames", getAuthorizedUsernames());
-        context.put("clusteringState", m_clusteringState);
 
         try {
             m_velocityEngine.mergeTemplate(m_openfireTemplate, context, writer);
@@ -114,6 +104,28 @@ public class OpenfireConfigurationFile {
             }
         }
     }
+
+
+    public void writeOfPropertyConfig(Writer w, OpenfireSettings settings) throws IOException {
+        KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(w);
+        config.write("admin.authorizedJIDs", getAuthorizedUsernames());
+        LdapSystemSettings ldapSettings = m_ldapManager.getSystemSettings();
+        boolean isEnableOpenfireConfiguration = ldapSettings.isEnableOpenfireConfiguration() && ldapSettings.isConfigured();
+        if (isEnableOpenfireConfiguration) {
+            config.write("provider.auth.className", m_providerLdapAuthClassName);
+            config.write("provider.user.className", m_providerLdapUserClassName);
+            config.write("provider.vcard.className", m_providerLdapVCardClassName);
+        } else {
+            config.write("provider.vcard.className", m_providerVCardClassName);
+        }
+        config.writeSettings(settings.getOfProperty());
+        if (m_additionalProperties != null) {
+            for(Map.Entry<String, String> entry: m_additionalProperties.entrySet()) {
+                config.write(entry.getKey(), entry.getValue());
+            }
+        }
+    }
+
 
     /**
      * Get authorized usernames. The defaults are admin and superadmin.
