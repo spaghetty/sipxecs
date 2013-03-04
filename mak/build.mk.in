@@ -4,8 +4,7 @@
 OPTIONS = @OPTIONS@
 DOWNLOAD_LIB_CACHE = @DOWNLOAD_LIB_CACHE@
 
-git_submodules = $(shell sed -e '/^\[submodule/! d' -e 's/^\[submodule "\(.*\)"]$$/\1/g' $(SRC)/.gitmodules)
-
+git_submodules = $(shell sed -e '/^\[submodule/! d' -e 's/^\[submodule "\(.*\)"]$$/\1/g' $(wildcard $(SRC)/.gitmodules $(SRC)/custom/.gitmodules))
 
 # pull in dependency make fragments
 include $(SRC)/mak/modules.mk
