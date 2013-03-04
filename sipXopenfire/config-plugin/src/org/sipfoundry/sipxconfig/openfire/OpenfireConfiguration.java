@@ -20,20 +20,17 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
-import org.sipfoundry.sipxconfig.bulk.ldap.LdapSystemSettings;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigManager;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
-import org.sipfoundry.sipxconfig.cfgmgt.YamlConfiguration;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
@@ -50,12 +47,10 @@ import org.springframework.beans.factory.annotation.Required;
 public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
     private OpenfireConfigurationFile m_config;
     private SipxOpenfireConfiguration m_sipxConfig;
-    private LdapManager m_ldapManager;
     private ConfigManager m_configManager;
     private FeatureManager m_featureManager;
     private WebSocket m_websocket;
     private Openfire m_openfire;
-    private static final String AUTH_CLASSNAME_KEY = "provider.auth.className";
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
@@ -99,6 +94,13 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
                 IOUtils.closeQuietly(sipxopenfire);
             }
 
+            Writer ofproperty = new FileWriter(new File(dir, "openfire.properties.part"));
+            try {
+                m_config.writeOfPropertyConfig(ofproperty, m_openfire.getSettings());
+            } finally {
+                IOUtils.closeQuietly(ofproperty);
+            }
+
             Writer multipleldap = new FileWriter(new File(dir, "multipleldap-openfire.xml"));
             try {
                 m_config.writeMultipleLdapConfiguration(multipleldap);
@@ -111,13 +113,6 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
                 m_sipxConfig.write(openfire, location);
             } finally {
                 IOUtils.closeQuietly(openfire);
-            }
-
-            Writer ofproperty = new FileWriter(new File(dir, "ofproperty.yaml"));
-            try {
-                writeOfPropertyConfig(ofproperty, m_openfire.getSettings());
-            } finally {
-                IOUtils.closeQuietly(ofproperty);
             }
         }
         //touch xmpp_update.xml on every location where openfire runs
@@ -134,37 +129,8 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
         }
     }
 
-    private void writeOfPropertyConfig(Writer w, OpenfireSettings settings) throws IOException {
-        YamlConfiguration config = new YamlConfiguration(w);
-        writeSettings(config, settings);
-    }
-
-    private void writeSettings(YamlConfiguration config, OpenfireSettings settings) throws IOException {
-        if (settings == null) {
-            return;
-        }
-
-        config.writeSettings(settings.getOfProperty());
-        LdapSystemSettings systemSettings = m_ldapManager.getSystemSettings();
-        boolean isEnableOpenfireConfiguration = systemSettings.isEnableOpenfireConfiguration()
-                && systemSettings.isConfigured();
-        if (isEnableOpenfireConfiguration) {
-            config.write(AUTH_CLASSNAME_KEY, m_config.getProviderLdapAuthClassName());
-        } else {
-            config.write(AUTH_CLASSNAME_KEY, m_config.getProviderAuthClassName());
-        }
-
-        for(Map.Entry<String, String> entry: m_config.getAdditionalProperties().entrySet()) {
-            config.write(entry.getKey(), entry.getValue());
-        }
-    }
-
     public void setConfig(OpenfireConfigurationFile config) {
         m_config = config;
-    }
-
-    public void setLdapManager(LdapManager ldapManager) {
-        m_ldapManager = ldapManager;
     }
 
     public void setSipxConfig(SipxOpenfireConfiguration sipxConfig) {
