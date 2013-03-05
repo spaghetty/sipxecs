@@ -39,16 +39,8 @@ import org.springframework.beans.factory.annotation.Required;
 
 public class OpenfireConfigurationFile {
     private static final String PROVIDER_ADMIN_CLASSNAME = "org.jivesoftware.openfire.admin.DefaultAdminProvider";
-    private static final String PROVIDER_LOCKOUT_CLASSNAME = "org.jivesoftware.openfire.lockout.DefaultLockOutProvider";
-    private static final String PROVIDER_SECURITY_AUDIT_CLASSNAME =
-        "org.jivesoftware.openfire.security.DefaultSecurityAuditProvider";
     private static final String SEPARATOR = ", ";
     private static final String ADMIN = "admin";
-
-    private String m_providerAuthClassName;
-    private String m_providerUserClassName;
-    private String m_providerGroupClassName;
-    private String m_providerVCardClassName;
 
     private String m_providerLdapAuthClassName;
     private String m_providerLdapUserClassName;
@@ -58,6 +50,7 @@ public class OpenfireConfigurationFile {
     private String m_openfireTemplate;
 
     private Map<String, String> m_additionalProperties;
+    private Map<String, String> m_providers;
 
     private LdapManager m_ldapManager;
     private CoreContext m_coreContext;
@@ -116,7 +109,10 @@ public class OpenfireConfigurationFile {
             config.write("provider.user.className", m_providerLdapUserClassName);
             config.write("provider.vcard.className", m_providerLdapVCardClassName);
         } else {
-            config.write("provider.vcard.className", m_providerVCardClassName);
+            config.write("provider.admin.className", PROVIDER_ADMIN_CLASSNAME);
+            for(Map.Entry<String, String> entry: m_providers.entrySet()) {
+                config.write(entry.getKey(), entry.getValue());
+            }
         }
         config.writeSettings(settings.getOfProperty());
         if (m_additionalProperties != null) {
@@ -125,7 +121,6 @@ public class OpenfireConfigurationFile {
             }
         }
     }
-
 
     /**
      * Get authorized usernames. The defaults are admin and superadmin.
@@ -166,30 +161,6 @@ public class OpenfireConfigurationFile {
     }
 
     @Required
-    public void setProviderAuthClassName(String providerAuthClassName) {
-        m_providerAuthClassName = providerAuthClassName;
-    }
-
-    public String getProviderAuthClassName() {
-        return m_providerAuthClassName;
-    }
-
-    @Required
-    public void setProviderUserClassName(String providerUserClassName) {
-        m_providerUserClassName = providerUserClassName;
-    }
-
-    @Required
-    public void setProviderGroupClassName(String providerGroupClassName) {
-        m_providerGroupClassName = providerGroupClassName;
-    }
-
-    @Required
-    public void setProviderVCardClassName(String providerVCardClassName) {
-        m_providerVCardClassName = providerVCardClassName;
-    }
-
-    @Required
     public void setProviderLdapAuthClassName(String providerLdapAuthClassName) {
         m_providerLdapAuthClassName = providerLdapAuthClassName;
     }
@@ -218,6 +189,10 @@ public class OpenfireConfigurationFile {
 
     public Map<String, String> getAdditionalProperties() {
         return m_additionalProperties;
+    }
+
+    public void setProviders(Map<String, String> providers) {
+        m_providers = providers;
     }
 
     public void setClusteringState(boolean state) {
