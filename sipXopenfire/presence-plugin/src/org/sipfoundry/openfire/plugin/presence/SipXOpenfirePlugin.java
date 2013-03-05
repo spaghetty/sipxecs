@@ -697,9 +697,8 @@ public class SipXOpenfirePlugin implements Plugin, Component {
                 new XmppUserPreferences(userAccount.getAdvertiseOnCallPreference(),
                         userAccount.getShowOnCallDetailsPreference()));
 
-        String jid = XmppAccountInfo.appendDomain(userAccount.getUserName());
         String sipUserName = userAccount.getSipUserName();
-        setSipId(jid, sipUserName);
+        setSipId(userAccount.getUserName(), sipUserName);
         setOnThePhoneMessage(sipUserName, userAccount.getOnThePhoneMessage());
     }
 
@@ -747,7 +746,8 @@ public class SipXOpenfirePlugin implements Plugin, Component {
 
     // gets a the sip username (without the SIP domain part) corresponding to the supplied JID
     public String getSipId(String jid) throws UserNotFoundException {
-        User user = userManager.getUser(jid);
+        String username = StringUtils.substringBefore(jid, "@");
+        User user = userManager.getUser(username);
         return user.getProperties().get(SIP_UID);
     }
 
