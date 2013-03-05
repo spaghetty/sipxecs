@@ -261,8 +261,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     private void deleteExtensions() {
         Set<OpenAcdCommand> commands = getCommands();
         for (OpenAcdExtension extension : commands) {
-            getHibernateTemplate().delete(extension);
-            getHibernateTemplate().flush();
+            deleteExtension(extension);
         }
         getDaoEventPublisher().publishDeleteCollection(commands);
     }

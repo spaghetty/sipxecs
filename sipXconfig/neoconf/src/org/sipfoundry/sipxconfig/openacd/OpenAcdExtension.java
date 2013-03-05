@@ -75,12 +75,12 @@ public class OpenAcdExtension extends FreeswitchExtension implements Replicable,
         return null;
     }
 
-    // We want to allow regular expressions to be used in extension field.
-    // The regex pattern must start with 1 capture group and that capture group to be
-    // the real extension to be sent to the Freeswitch node in the dial string.
-    // We will validate: the regular expression to start with 1 group and the capture group to be
-    // a valid extension. That extension we will validate as alias.
-    // we will validate it only if the user will check the extension as a regular expression.
+    //We want to allow regular expressions to be used in extension field.
+    //The regex pattern must start with 1 capture group and that capture group to be
+    //the real extension to be sent to the Freeswitch node in the dial string.
+    //We will validate: the regular expression to start with 1 group and the capture group to be
+    //a valid extension. That extension we will validate as alias.
+    //we will validate it only if the user will check the extension as a regular expression.
     public String getCapturedExtension() {
         String extension = getExtension();
         if (extension == null) {
@@ -88,7 +88,7 @@ public class OpenAcdExtension extends FreeswitchExtension implements Replicable,
         }
         String validPhonePattern = "[\\d*]+";
         if (getNumberCondition().isRegex()) {
-            // is the extension a valid regular expression?
+            //is the extension a valid regular expression?
             try {
                 Pattern isValidPattern = Pattern.compile(extension);
             } catch (PatternSyntaxException e) {
@@ -99,8 +99,8 @@ public class OpenAcdExtension extends FreeswitchExtension implements Replicable,
             if (!m.matches()) {
                 throw new UserException("&error.regex.no.valid.group");
             }
-            // we are sure there's a capturing group with index 1
-            // otherwise, the previous match would fail
+            //we are sure there's a capturing group with index 1
+            //otherwise, the previous match would fail
             extension = m.group(1);
         } else {
             if (!Pattern.matches(validPhonePattern, extension)) {
@@ -147,9 +147,6 @@ public class OpenAcdExtension extends FreeswitchExtension implements Replicable,
     public Collection<AliasMapping> getAliasMappings(String domainName) {
         List<AliasMapping> mappings = new ArrayList<AliasMapping>();
         Address address = m_addressManager.getSingleAddress(FreeswitchFeature.SIP_ADDRESS);
-        if (address == null) {
-            return mappings;
-        }
         String extension = getCapturedExtension();
         String sipUri = SipUri.format(extension, address.getAddress(), address.getPort());
         String sipUriNoQuote = SipUri.format(extension, address.getAddress(), address.getPort(), false);
