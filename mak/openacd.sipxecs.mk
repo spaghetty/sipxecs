@@ -21,7 +21,7 @@ $(foreach P,$(oacd), \
 openacd_VER = 2.0.0
 sipxopenacd_VER = $(PACKAGE_VERSION)
 $(foreach P,$(oacd_class_1), \
-  $(eval $(P)_PACKAGE_REVISION = $(shell cd $(SRC)/$(P); ../config/revision-gen $($(P)_VER))) \
+  $(eval $(P)_PACKAGE_REVISION = $(shell cd $(SRC)/$(P); ../config/revision-gen $($(P)_VER) 2>/dev/null || echo 'missing')) \
   $(eval $(P)_SRPM_DEFS = --define "buildno $($(P)_PACKAGE_REVISION)") \
   $(eval $(P)_RPM_DEFS = --define="buildno $($(P)_PACKAGE_REVISION)") \
   $(eval $(P)_SRPM = $(P)-$($(P)_VER)-$($(P)_PACKAGE_REVISION).src.rpm) \
@@ -31,7 +31,7 @@ $(foreach P,$(oacd_class_1), \
 
 $(foreach P,$(oacd_class_2), \
   $(eval $(P)_VER = 2.0.0) \
-  $(eval $(P)_PACKAGE_REVISION = $(shell cd $(SRC)/$(P); ../config/revision-gen $($(P)_VER))) \
+  $(eval $(P)_PACKAGE_REVISION = $(shell cd $(SRC)/$(P); ../config/revision-gen $($(P)_VER) 2>/dev/null || echo 'missing')) \
   $(eval $(P)_SRPM_DEFS = --define "buildno $($(P)_PACKAGE_REVISION)") \
   $(eval $(P)_RPM_DEFS = --define="buildno $($(P)_PACKAGE_REVISION)") \
   $(eval $(P)_SRPM = erlang-$(P)-$($(P)_VER)-$($(P)_PACKAGE_REVISION).src.rpm) \
