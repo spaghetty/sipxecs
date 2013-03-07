@@ -1,5 +1,3 @@
-lib += erlang-ej
-
 erlang-ej_VER = 0.0.2
 erlang-ej_GITREF = c33ab74
 erlang-ej_SRPM_DEFS = --define "gitref $(erlang-ej_GITREF)"
@@ -12,7 +10,6 @@ erlang-ej_SOURCES = \
 	$(SRC)/$(PROJ)/erlang-ej-0001-Replace-git-based-app-vsn.patch
 erlang-ej_SRPM = erlang-ej-$(erlang-ej_VER)-$(erlang-ej_REV)$(RPM_DIST).g$(erlang-ej_GITREF).src.rpm
 
-erlang-ej.autoreconf erlang-ej.configure:;
 erlang-ej.dist : $(erlang-ej_TARBALL);
 
 # Helpful for package maintainer when you want to pull in new changes from erlang-ej project
