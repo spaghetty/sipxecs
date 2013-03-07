@@ -1,5 +1,3 @@
-lib += erlang-cowboy
-
 erlang-cowboy_VER = 0.6.1
 erlang-cowboy_GITREF = af07e04
 erlang-cowboy_SRPM_DEFS = --define "gitref $(erlang-cowboy_GITREF)"
@@ -10,7 +8,6 @@ erlang-cowboy_TARBALL = extend-cowboy-$(erlang-cowboy_VER)-g$(erlang-cowboy_GITR
 erlang-cowboy_SOURCES = $(erlang-cowboy_TARBALL)
 erlang-cowboy_SRPM = erlang-cowboy-$(erlang-cowboy_VER)-$(erlang-cowboy_REV)$(RPM_DIST).g$(erlang-cowboy_GITREF).src.rpm
 
-erlang-cowboy.autoreconf erlang-cowboy.configure:;
 erlang-cowboy.dist : $(DOWNLOAD_LIB_CACHE)/$(erlang-cowboy_TARBALL);
 
 # Helpful for package maintainer when you want to pull in new changes from erlang-cowboy project
