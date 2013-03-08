@@ -107,6 +107,11 @@ lib_all = \
   OpenACD \
   openfire \
   erlmongo \
+  erlang-ejrpc2 \
+  erlang-ej \
+  erlang-cowboy \
+  erlang-gen_server_mock \
+  erlang-mimetypes \
   ruby-dbi \
   cfengine \
   oss_core \
@@ -119,7 +124,8 @@ lib_all = \
   sec \
   js \
   v8 \
-  mongodb
+  mongodb \
+  erlang
 
 lib_exclude_centos_6 = \
   mongodb \
@@ -127,6 +133,7 @@ lib_exclude_centos_6 = \
 
 lib_exclude_fedora_16 = \
   epel-release \
+  erlang \
   rrdtool \
   nsis \
   nsis-data \
@@ -141,10 +148,12 @@ lib_exclude_fedora_17 = \
   v8 \
   mongodb
 
-# ruby-postgres broken, but should be replaced with ruby-pg on
-# all distros
-$(foreach V,18 19 20 21 21 23,\
-  $(eval lib_exclude_fedora_$(V) = $(lib_exclude_fedora_17)))
+lib_exclude_fedora_18 = $(lib_exclude_fedora_17)
+lib_exclude_fedora_19 = $(lib_exclude_fedora_18)
+lib_exclude_fedora_20 = $(lib_exclude_fedora_19)
+lib_exclude_fedora_21 = $(lib_exclude_fedora_20)
+lib_exclude_fedora_22 = $(lib_exclude_fedora_21)
+lib_exclude_fedora_23 = $(lib_exclude_fedora_22)
 
 lib = $(filter-out $(lib_exclude_$(DISTRO_OS)_$(DISTRO_VER)),$(lib_all))
 
