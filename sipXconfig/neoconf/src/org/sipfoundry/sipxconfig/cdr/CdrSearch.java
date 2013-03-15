@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.dialplan.CallTag;
 
 public class CdrSearch {
@@ -49,6 +50,7 @@ public class CdrSearch {
     };
     private String m_order;
     private boolean m_ascending = true;
+    private User m_user;
 
     public void setMode(Mode mode) {
         if (mode == null) {
@@ -74,6 +76,10 @@ public class CdrSearch {
         return m_term;
     }
 
+    public void setUser(User u) {
+        m_user = u;
+    }
+
     public void setOrder(String order, boolean ascending) {
         m_order = order;
         m_ascending = ascending;
@@ -90,16 +96,23 @@ public class CdrSearch {
     private void appendCallerSql(StringBuilder sql) {
         sql.append(OPEN_PARANTHESIS);
         appendSearchTermSql(sql, CdrManagerImpl.CALLER_AOR);
-        sql.append(AND);
-        sql.append(CdrManagerImpl.CALLER_INTERNAL);
-        sql.append("=true)");
+        if(m_user!=null && !m_user.isAdmin()) {
+            sql.append(AND);
+            sql.append(CdrManagerImpl.CALLER_INTERNAL);
+            sql.append("=true)");
+        } else {
+            sql.append(CLOSED_PARANTHESIS);
+        }
+
     }
 
     private void appendCalleeSql(StringBuilder sql) {
         sql.append(OPEN_PARANTHESIS);
         appendSearchTermSql(sql, CdrManagerImpl.CALLEE_AOR);
-        sql.append(AND);
-        appendCalleeInternalRouteSql(sql);
+        if(m_user!=null && !m_user.isAdmin()) {
+            sql.append(AND);
+            appendCalleeInternalRouteSql(sql);
+        }
         sql.append(CLOSED_PARANTHESIS);
     }
 
