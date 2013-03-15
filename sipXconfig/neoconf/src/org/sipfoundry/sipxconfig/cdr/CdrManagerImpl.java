@@ -124,7 +124,15 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
 
     public List<Cdr> getCdrs(Date from, Date to, CdrSearch search, User user, int limit, int offset) {
         CdrsStatementCreator psc = new SelectAll(from, to, search, user, m_tz, limit, offset);
-        CdrsResultReader resultReader = new CdrsResultReader(m_tz);
+	boolean privacy = false;
+        int pLimit = 0;
+        String pExcluded = "";
+	if ( user==null ) {
+	    privacy = getSettings().getPrivacyStatus();
+            pLimit = getSettings().getPrivacyMinLength();
+            pExcluded = getSettings().getPrivacyExcludeList(); 
+        }
+        CdrsResultReader resultReader = new CdrsResultReader(m_tz, privacy, pLimit, pExcluded);
         getJdbcTemplate().query(psc, resultReader);
         return resultReader.getResults();
     }
@@ -368,9 +376,22 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
         private List<Cdr> m_cdrs = new ArrayList<Cdr>();
 
         private Calendar m_calendar;
+	private boolean m_privacy;
+        private int m_privacy_limit;
+        private String m_privacy_excluded;
+
+        public CdrsResultReader(TimeZone tz, boolean privacy, int limit, String excluded) {
+            m_calendar = Calendar.getInstance(tz);
+	    m_privacy = privacy;
+            m_privacy_limit = limit;
+            m_privacy_excluded = excluded;
+        }
 
         public CdrsResultReader(TimeZone tz) {
             m_calendar = Calendar.getInstance(tz);
+	    m_privacy = false;
+            m_privacy_limit = 0;
+            m_privacy_excluded = "";
         }
 
         public List<Cdr> getResults() {
@@ -379,8 +400,14 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
 
         public void processRow(ResultSet rs) throws SQLException {
             Cdr cdr = new Cdr();
-            cdr.setCalleeAor(rs.getString(CALLEE_AOR));
-            cdr.setCallerAor(rs.getString(CALLER_AOR));
+	    if (!m_privacy) {
+		cdr.setCalleeAor(rs.getString(CALLEE_AOR));
+		cdr.setCallerAor(rs.getString(CALLER_AOR));
+	    }
+	    else {
+		cdr.setMaskedCalleeAor(rs.getString(CALLEE_AOR), m_privacy_limit, m_privacy_excluded);
+		cdr.setMaskedCallerAor(rs.getString(CALLER_AOR), m_privacy_limit, m_privacy_excluded);
+	    }
             cdr.setCallId(rs.getString(CALL_ID));
             cdr.setReference(rs.getString(CALL_REFERENCE));
             cdr.setCallerInternal(rs.getBoolean(CALLER_INTERNAL));
