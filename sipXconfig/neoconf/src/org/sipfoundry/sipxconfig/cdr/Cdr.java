@@ -82,6 +82,10 @@ public class Cdr implements Serializable {
     private boolean m_callerInternal;
     private String m_calleeRoute;
 
+    private String m_calledNumberAor;
+    private String m_calledNumber;
+    private int m_trunkId;
+
     public String getCalleeAor() {
         return m_calleeAor;
     }
@@ -95,7 +99,10 @@ public class Cdr implements Serializable {
     }
 
     public String getRecipient() {
-        return m_recipient;
+        if(m_calledNumber!=null)
+            return m_calledNumber;
+        else
+            return m_recipient;
     }
 
     public void setCalleeAor(String calleeAor) {
@@ -335,5 +342,20 @@ public class Cdr implements Serializable {
         return callType;
     }
 
+    public String getCalledNumber() {
+        return m_calledNumber;
+    }
+    
+    public void setCalledNumber(String calledNumber) {
+        m_calledNumberAor = calledNumber;
+        m_calledNumber = SipUri.extractUser(calledNumber);
+    }
 
+    public int getGateway() {
+        return m_trunkId;
+    }
+    
+    public void setGateway(int id) {
+        m_trunkId = id;
+    }
 }

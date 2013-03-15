@@ -139,13 +139,14 @@ void CallStateEventBuilder_DB::observerEvent(int sequenceNumber, ///< for Observ
  *   - completeCallEvent
  */
 void CallStateEventBuilder_DB::callRequestEvent(int sequenceNumber,
-                                                 const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
-                                                 const UtlString& contact,
-                                                 const UtlString& references,
-                                                 const UtlString& branch_id,
-                                                 int              via_count,
-                                                 const bool callerInternal
-                                                 )
+                                                const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
+                                                const UtlString& requestUri,
+                                                const UtlString& contact,
+                                                const UtlString& references,
+                                                const UtlString& branch_id,
+                                                int              via_count,
+                                                const bool callerInternal
+                                                )
 {
    if (builderStateIsOk(CallRequestEvent))
    {
@@ -170,6 +171,10 @@ void CallStateEventBuilder_DB::callRequestEvent(int sequenceNumber,
       replaceSingleQuotes(branch_id, nbranchId);
       mBranchId = "\'" + nbranchId + "\',";
 
+      UtlString nrequestUri;
+      replaceSingleQuotes(requestUri, nrequestUri);
+      mRequestUri = "\'" + nrequestUri + "\',";
+
       char buffer[10];
       snprintf(buffer, 10, "%d", via_count);
       mViaCount = buffer;
@@ -193,11 +198,11 @@ void CallStateEventBuilder_DB::callRequestEvent(int sequenceNumber,
  *   - completeCallEvent
  */
 void CallStateEventBuilder_DB::callSetupEvent(int sequenceNumber,
-                                               const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
-                                               const UtlString& contact,
-                                               const UtlString& calleeRoute,
-                                               const UtlString& branch_id,
-                                               int              via_count
+                                              const OsTime& timestamp,      ///< obtain using getCurTime(OsTime)
+                                              const UtlString& contact,
+                                              const UtlString& calleeRoute,
+                                              const UtlString& branch_id,
+                                              int              via_count
                                                )
 {
    if (builderStateIsOk(CallSetupEvent))
