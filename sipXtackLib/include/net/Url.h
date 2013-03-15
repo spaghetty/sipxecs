@@ -546,6 +546,8 @@ public:
      */
    static UtlBoolean isDigitString(const char* dialedCharacters);
 
+   UtlBoolean isValid() const;
+
    /// Compare two URLs to see if the have the same user, host and port
    UtlBoolean isUserHostPortEqual(const Url& uri,
                                   int impliedPort = PORT_NONE

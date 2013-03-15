@@ -103,7 +103,8 @@ CallDestination::moveCallDestToRecordRoute( SipMessage& request )
          // Parameter doesn't exist.  Add it.
          recordrouteUri.setUrlParameter(SIP_SIPX_CALL_DEST_FIELD, headercalldest.data());
       }
-      request.setRecordRouteField(recordrouteUri.toString().data(), 0);
+      if (recordrouteUri.isValid())
+        request.setRecordRouteField(recordrouteUri.toString().data(), 0);
       bRemoved = true;
    }
    return bRemoved;

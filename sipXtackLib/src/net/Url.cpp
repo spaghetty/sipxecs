@@ -1401,6 +1401,11 @@ UtlBoolean Url::isIncludeAngleBracketsSet() const
     return mAngleBracketsIncluded ;
 }
 
+UtlBoolean Url::isValid() const
+{
+    return !mHostAddress.isNull();
+}
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 // Special value used inside Url::parseString() to indicate that no
