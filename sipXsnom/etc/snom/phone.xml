@@ -298,7 +298,7 @@
     <setting name="use_backlight">
       <profileName>use_backlight$</profileName>
       <type refid="on-off" />
-      <value>on</value>
+      <value>off</value>
     </setting>
     <setting name="guess_number" advanced="yes">
       <type refid="on-off" />
