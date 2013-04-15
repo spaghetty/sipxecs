@@ -137,6 +137,7 @@ EOF
 # special patch that upgrades DB version to the latest version - only use once
 VersionPatch="upgrade_version"
 
+UpgradePatches8=""
 UpgradePatches7="gateway $VersionPatch"
 UpgradePatches6="cdrremote $UpgradePatches7"
 UpgradePatches5="transaction $UpgradePatches6"
