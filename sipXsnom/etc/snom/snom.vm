@@ -41,7 +41,7 @@ perm="R"#end
 	<tbook e="2">
 #foreach ($entry in $phoneBook)
 #set ($i = $velocityCount - 1)
-#set ($fullName = "$!{entry.FirstName} $!{entry.LastName}")
+#set ($fullName = "$!{entry.LastName} $!{entry.FirstName}")
 #set ($fullName = $fullName.trim())
 		<item context="active" type="none" index="${i}">
 			<name>$esc.xml($!fullName)</name>

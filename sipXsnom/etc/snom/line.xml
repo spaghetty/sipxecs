@@ -233,7 +233,7 @@
     </setting>
     <setting name="user_presence_subscription" advanced="yes">
       <type refid="on-off" />
-      <value>off</value>
+      <value>on</value>
     </setting>
     <setting name="user_presence_buddy_list_uri" advanced="yes">
       <type>
