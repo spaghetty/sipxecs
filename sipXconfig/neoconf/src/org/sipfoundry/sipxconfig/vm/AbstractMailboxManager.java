@@ -79,9 +79,29 @@ public abstract class AbstractMailboxManager extends PersonalAttendantManager im
     public List<String> getFolderIds() {
         // to support custom folders, return these names and any additional
         // directories here
-        return Arrays.asList(new String[] {
-            "inbox", "conference", "deleted", "saved"
-        });
+	try {
+	    File dir = new File(getMailstoreDirectory(), getUserId());
+	    File listDir[] = dir.listFiles();
+
+	    List<String> Ids = new ArrayList<String>();
+	    Ids.add("inbox");
+	    Ids.add("conference");
+	    Ids.add("deleted");
+	    Ids.add("saved");
+	    
+	    for (int i = 0; i < listDir.length; i++) {
+		if( !(listDir[i].getName().equals("inbox") ||
+		      listDir[i].getName().equals("conference") ||
+		      listDir[i].getName().equals("deleted") ||
+		      listDir[i].getName().equals("saved")) && listDir[i].isDirectory())
+		    {
+			Ids.add(listDir[i].getName());
+		    }
+	    }
+	    return Ids;
+	} catch (Exception e){
+	    return Arrays.asList(new String[] {"inbox", "conference", "deleted", "saved"});
+	}
     }
 
     @Override
