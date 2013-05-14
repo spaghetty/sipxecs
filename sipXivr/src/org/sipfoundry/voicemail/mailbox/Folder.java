@@ -39,5 +39,11 @@ public enum Folder {
         public String toString() {
             return "conference";
         }
+    },
+
+    RECORDER {
+        public String toString() {
+            return "recorder";
+        }
     }
 }

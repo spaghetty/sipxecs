@@ -281,6 +281,9 @@ public abstract class AbstractMailboxManager implements MailboxManager {
         if (Folder.CONFERENCE.toString().equals(name)) {
             return Folder.CONFERENCE;
         }
+        if (Folder.RECORDER.toString().equals(name)) {
+            return Folder.RECORDER;
+        }
         return null;
     }
 

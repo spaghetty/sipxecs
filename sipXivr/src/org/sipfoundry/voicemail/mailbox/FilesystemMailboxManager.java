@@ -60,6 +60,7 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
         List<String> savedMessages = extractMessages(getFolder(username, Folder.SAVED).listFiles(filter));
         List<String> deletedMessages = extractMessages(getFolder(username, Folder.DELETED).listFiles(filter));
         List<String> conferenceMessages = extractMessages(getFolder(username, Folder.CONFERENCE).listFiles(filter));
+        List<String> recorderMessages = extractMessages(getFolder(username, Folder.RECORDER).listFiles(filter));
 
         FilenameFilter unheardFilter = new RegexFileFilter(STATUS_REGEX);
         List<String> unheardMessages = extractMessages(getFolder(username, Folder.INBOX).listFiles(unheardFilter));
@@ -266,7 +267,7 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
                 for (File messageFile : messageFiles) {
                     FileUtils.deleteQuietly(messageFile);
                 }
-            } else if (messageFolder == Folder.INBOX || messageFolder == Folder.SAVED) {
+            } else if (messageFolder == Folder.INBOX || messageFolder == Folder.SAVED || messageFolder == Folder.RECORDER) {
                 File deletedFolder = getFolder(message.getUserName(), Folder.DELETED);
                 for (File file : messageFiles) {
                     String fileName = file.getName();
@@ -499,6 +500,10 @@ public class FilesystemMailboxManager extends AbstractMailboxManager {
             return files;
         }
         files = findFilesInFolder(getFolder(username, Folder.CONFERENCE), filter);
+        if (files != null) {
+            return files;
+        }
+        files = findFilesInFolder(getFolder(username, Folder.RECORDER), filter);
         if (files != null) {
             return files;
         }
