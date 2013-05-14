@@ -61,5 +61,4 @@ public abstract class ActiveCallsPanel extends BaseComponent {
         }
         return activeCalls;
     }
-
 }

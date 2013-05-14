@@ -248,7 +248,12 @@ public abstract class CdrTable extends BaseComponent {
         Date start = getRow().getStartTime();
         Date end = getRow().getEndTime();
         Calendar cal = Calendar.getInstance();
-        cal.setTime(end);
+	if(end!=null)
+	    cal.setTime(end);
+	else {
+	    end = new Date();
+	    cal.setTime(end);
+	}
         cal.add(Calendar.DATE, 1);
         end = cal.getTime();
         return String.format(HOMER_LINK, callid,

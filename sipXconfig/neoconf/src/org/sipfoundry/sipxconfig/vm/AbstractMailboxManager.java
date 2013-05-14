@@ -80,7 +80,7 @@ public abstract class AbstractMailboxManager extends PersonalAttendantManager im
         // to support custom folders, return these names and any additional
         // directories here
         return Arrays.asList(new String[] {
-            "inbox", "conference", "deleted", "saved"
+		"inbox", "conference", "deleted", "saved", "recorder"
         });
     }
 

@@ -226,11 +226,13 @@ public class MailboxServlet extends HttpServlet {
                         pw.write("<messages>\n");
                         List<VmMessage> inboxMessages = mailboxManager.getMessages(user.getUserName(), Folder.INBOX);
                         List<VmMessage> savedMessages = mailboxManager.getMessages(user.getUserName(), Folder.SAVED);
+                        List<VmMessage> recorderMessages = mailboxManager.getMessages(user.getUserName(), Folder.RECORDER);
                         List<VmMessage> deletedMessages = mailboxManager.getMessages(user.getUserName(),
                                 Folder.DELETED);
                         listMessages(inboxMessages, "inbox", pw);
                         listMessages(savedMessages, "saved", pw);
                         listMessages(deletedMessages, "deleted", pw);
+                        listMessages(recorderMessages, "recorder", pw);
                         pw.write("</messages>");
                     } else {
                         response.sendError(405);
@@ -256,7 +258,28 @@ public class MailboxServlet extends HttpServlet {
                     } else {
                         response.sendError(405);
                     }
-                } else if (context.equals("saved")) {
+                } else if (context.equals("recorder")) {
+		    if (method.equals(METHOD_GET)) {
+			response.setContentType("text/xml");
+			pw.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n");
+			pw.write("<messages>\n");
+			if (subDirs.length >= 4) {
+			    String messageId = subDirs[3];
+			    try {
+				listFullMessage(mailboxManager.getVmMessage(user.getUserName(), Folder.RECORDER,
+									    messageId, false), "recorder", pw);
+			    } catch (MessageNotFoundException ex) {
+				response.sendError(404, "messageId not found");
+			    }
+			} else {
+			    listFullMessages(mailboxManager.getMessages(user.getUserName(), Folder.RECORDER), "recorder",
+                                     pw);
+			}
+			pw.write("</messages>");
+		    } else {
+			response.sendError(405);
+		    }
+		} else if (context.equals("saved")) {
                     if (method.equals(METHOD_GET)) {
                         response.setContentType("text/xml");
                         pw.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n");
