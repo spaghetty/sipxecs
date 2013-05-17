@@ -32,6 +32,20 @@ sinclude(`oem.m4')
 install
 cdrom
 
+ifdef(`manual-partition', 
+#--- Manual Partitioning
+# Let installer prompt user w/defaults.
+,
+#--- Auto Partitioning
+zerombr yes
+clearpart --all --initlabel
+part /boot --fstype ext2 --size=1024
+part swap --size=4096
+part pv.01 --size=1 --grow
+volgroup vg_root pv.01
+logvol / --fstype ext3 --name lv_var --vgname=vg_root --size=1 --grow
+)
+
 # According to anaconda docs, if you do not include a "network..." line, user is supposed
 # to be prompted. I could not get this to work. so I append "asknetwork" to kernel boot
 # line. UI is not as good, but it does get the job done
