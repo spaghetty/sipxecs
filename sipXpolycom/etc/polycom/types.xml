@@ -603,3 +603,49 @@
             <option><value>4.1.X</value></option>
           </enum>
 </type>
+<type id="ringtones">
+  <enum>
+    <option>
+      <value>custom1</value>
+    </option>
+    <option>
+      <value>custom2</value>
+    </option>
+    <option>
+      <value>custom3</value>
+    </option>
+    <option>
+      <value>custom4</value>
+    </option>
+    <option>
+      <value>custom5</value>
+    </option>
+    <option>
+      <value>custom6</value>
+    </option>
+    <option>
+      <value>custom7</value>
+    </option>
+    <option>
+      <value>custom8</value>
+    </option>
+    <option>
+      <value>custom9</value>
+    </option>
+    <option>
+      <value>custom10</value>
+    </option>
+    <option>
+      <value>custom11</value>
+    </option>
+    <option>
+      <value>custom12</value>
+    </option>
+    <option>
+      <value>custom13</value>
+    </option>
+    <option>
+      <value>custom14</value>
+    </option>
+  </enum>
+</type>

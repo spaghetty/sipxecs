@@ -37,6 +37,8 @@
 #macro( ModelSpecificAttributes $fw )
    #if($fw == "3.1.X")
       #ModelSpecificAttributes31( "")
+   #elseif($fw == "3.2.X")
+      #ModelSpecificAttributes32( "")
    #elseif($fw == "4.0.X")
       #ModelSpecificAttributes4( "", "4.0.X")
    #elseif($fw == "4.1.X")
@@ -101,5 +103,9 @@
 #ModelSpecificNode( "SSIP300", "2.0" )
 #ModelSpecificNode( "SSIP500", "2.0" )
 #ModelSpecificNode( "VVX600", "4.1.X" )
+#ModelSpecificNode( "VVX300", "4.1.X" )
+#ModelSpecificNode( "VVX310", "4.1.X" )
+#ModelSpecificNode( "VVX400", "4.1.X" )
+#ModelSpecificNode( "VVX410", "4.1.X" )
 
 </APPLICATION>
