@@ -71,8 +71,15 @@ public class Deposit extends AbstractVmAction implements ApplicationContextAware
                 LOG.info("depositVoicemail Collected digits=" + digits);
 
                 if (digits.equals("i")) {
-                    play("please_hold", "");
-                    transfer(user.getUri(), true, true);
+                    //play("please_hold", "");
+                    String uri = user.getUri();
+                    if ( !"".equals(user.getCellNum())){
+                        if ( uri.contains("sip:"))
+                            uri = uri.replaceAll(":(.+)@", ":"+user.getCellNum()+"@");
+                        else
+                            uri = uri.replaceAll("(.+)@", user.getCellNum()+"@");
+                    }
+                    transfer(uri, true, true);
                     return null;
                 }
 
@@ -121,8 +128,16 @@ public class Deposit extends AbstractVmAction implements ApplicationContextAware
 
                         if (digit != null && digit.equals("i")) {
                             tempMessage.setIsToBeStored(true);
-                            play("please_hold", "");
-                            transfer(user.getUri(), true, true);
+                            //play("please_hold", "");
+                            String uri = user.getUri();
+                            if ( !"".equals(user.getCellNum())){
+                                LOG.error(uri);
+                                if ( uri.contains("sip:"))
+                                    uri = uri.replaceAll(":(.+)@", ":"+user.getCellNum()+"@");
+                                else
+                                    uri = uri.replaceAll("(.+)@", user.getCellNum()+"@");
+                            }
+                            transfer(uri, true, true);
                             return null;
                         }
 
