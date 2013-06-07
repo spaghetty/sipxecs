@@ -22,31 +22,27 @@
     <routeFrom>$route</routeFrom>
 #end	    
     <methodMatch>
-      <methodPattern>SUBSCRIBE</methodPattern>
-#if( ${statusAddress} )
+#set($method = $locals.get("subscribe"))
+#set($methodDefault = $method.getDefRoute())
+#set($methodName = $method.getName())
+      <methodPattern>$methodName</methodPattern>
+#foreach ($field in $method.getFields())
+#if($field.get("name"))
 
-      <!-- Message waiting indication events -->
-      <fieldMatch fieldName="Event">
-        <fieldPattern>message-summary.*</fieldPattern>
-        <!--this goes to the status server-->
-        <routeTo>&lt;${statusAddress.stripProtocol()};transport=tcp&gt;</routeTo>
-      </fieldMatch>
-
+        <fieldMatch fieldName=$field.get("name")>
+          <fieldPattern>$field.get("pattern")</fieldPattern>      
+          <routeTo>$field.get("routeTo")</routeTo>
+        </fieldMatch>
 #end
-      <!-- "reg" event subscriptions. -->
-      <fieldMatch fieldName="Event">
-        <fieldPattern>reg</fieldPattern>
-        <routeTo>&lt;${regEventAddress.stripProtocol()};transport=tcp&gt;</routeTo>
-      </fieldMatch>
+#end
 
-      <!-- All other SUBSCRIBE requests go to the SIP registry service -->
-      <routeTo>&lt;${regAddress.stripProtocol()};transport=tcp;x-sipx-routetoreg&gt;</routeTo>
+	<routeTo>$methodDefault</routeTo>
 
     </methodMatch>
-
     <!-- All other requests go to the SIP registry service -->
     <routeTo>&lt;${regAddress.stripProtocol()};transport=tcp;x-sipx-routetoreg&gt;</routeTo>
   </route>
+
 
 #if(${sbc.enabled})
 #if(${exportLocalIpAddress})
@@ -66,6 +62,7 @@
       <routeTo authRequired="true"/>
     </route>
 #end
+
 #foreach($auxSbc in $auxSbcs)
 #if($auxSbc.enabled)
   <route mappingType='auxiliary SBC'>
@@ -85,6 +82,7 @@
   </route>
 #end
 #end
+
 
   <route mappingType="external destinations">
     <description>Any foreign domain - route via session border.</description>
