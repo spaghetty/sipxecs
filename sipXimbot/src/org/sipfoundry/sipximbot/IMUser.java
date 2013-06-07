@@ -680,8 +680,12 @@ public class IMUser {
 
                     Socket socket = new Socket("localhost", 8021);
 
+                    String uri = m_user.getIdentity();
+                    if ( !"".equals(m_user.getCellNum())){
+                        uri = m_user.getCellNum()+"@"+config.getSipxchangeDomainName();
+                    }
                     if (fses.connect(socket, "ClueCon")) {
-                        ListenIn listenIn = new ListenIn(fses, m_user.getIdentity(),
+                        ListenIn listenIn = new ListenIn(fses, uri,
                                                          uuid, config.getSipxchangeDomainName());
                         listenIn.go();
                     }
