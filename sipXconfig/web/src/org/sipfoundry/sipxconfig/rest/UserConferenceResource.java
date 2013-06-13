@@ -75,13 +75,22 @@ public class UserConferenceResource extends UserResource {
         private String m_extension;
         @SuppressWarnings("unused")
         private String m_accessCode;
-
-        public Representable(Conference conference) {
+	@SuppressWarnings("unused")
+	private String m_participantAccessCode;
+	@SuppressWarnings("unused")
+	private String m_organizerAccessCode;
+	@SuppressWarnings("unused")
+	private String m_maxLegs;
+        
+	public Representable(Conference conference) {
             m_enabled = conference.isEnabled();
             m_name = conference.getName();
             m_description = conference.getDescription();
             m_extension = conference.getExtension();
             m_accessCode = conference.getParticipantAccessCode();
+	    m_participantAccessCode = conference.getParticipantAccessCode();
+	    m_organizerAccessCode = conference.getOrganizerAccessCode();
+	    m_maxLegs = conference.getSettingValue(Conference.MAX_LEGS);
         }
     }
 
@@ -91,6 +100,9 @@ public class UserConferenceResource extends UserResource {
         private static final String NAME = "name";
         private static final String DESCRIPTION = "description";
         private static final String EXTENSION = "extension";
+	private static final String PARTICIPANT_AC = "participantAccessCode";
+	private static final String ORGANIZER_AC = "organizerAccessCode";
+	private static final String MAX_LEGS = "maxLegs";
 
         public ConferenceRepresentation(MediaType mediaType, Collection<Representable> object) {
             super(mediaType, object);
@@ -110,6 +122,9 @@ public class UserConferenceResource extends UserResource {
             xstream.aliasField(DESCRIPTION, Representable.class, DESCRIPTION);
             xstream.aliasField(EXTENSION, Representable.class, EXTENSION);
             xstream.aliasField("accessCode", Representable.class, "participantAccessCode");
+	    xstream.aliasField(PARTICIPANT_AC, Representable.class, PARTICIPANT_AC);
+	    xstream.aliasField(ORGANIZER_AC, Representable.class, ORGANIZER_AC);
+	    xstream.aliasField(MAX_LEGS, Representable.class, MAX_LEGS);
             xstream.omitField(Representable.class, ID);
         }
     }
