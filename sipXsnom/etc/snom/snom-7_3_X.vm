@@ -19,6 +19,22 @@ perm="R"#end
 #end
 #end
 		<ignore_security_warning perm="R">on</ignore_security_warning>
+#set ($supported_models = ["Snom 320", "Snom 360", "Snom 370"])
+#set ($pr_usr = "")
+#foreach ($line in $phone.ProfileLines)
+#foreach ($group in $line.Values)
+#foreach ($setting in $group.Values)
+#if ($pr_usr == "" && $setting.name == "user_name")
+#set ($pr_usr = $setting.Value)
+#end
+#end
+#end
+#end
+#foreach ($model in $supported_models)
+#if ($phone.Model.Label == $model && $pr_usr != "")
+        <dkey_record perm="R">recorder ~~pr~$pr_usr</dkey_record>
+#end
+#end
 		<dkey_retrieve perm="R">speed 101</dkey_retrieve>
 
 		<!-- speeddial list -->
