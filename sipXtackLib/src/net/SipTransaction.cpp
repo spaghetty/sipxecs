@@ -30,8 +30,6 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-#define SIP_UDP_RESEND_TIMES 4          // Maximum number of times to send/resend messages via UDP
-#define SIP_TCP_RESEND_TIMES 4          // Maximum number of times to send/resend messages via TCP
 #define MIN_Q_DELTA_SQUARE 0.0000000001 // Smallest Q difference is 0.00001
 #define UDP_LARGE_MSG_LIMIT  1200       // spec says 1300, but we may have to add another via
 
@@ -52,7 +50,9 @@ UtlBoolean SipTransaction::SendTryingForNist = TRUE;
 SipTransaction::SipTransaction(SipMessage* initialMsg,
                                UtlBoolean  isOutgoing,
                                UtlBoolean  userAgentTransaction,
-                               BranchId*   parentBranch
+                               BranchId*   parentBranch,
+			       int         mUdpRe,
+			       int         mTcpRe
                                )
    : mpBranchId(NULL)
    , mRequestMethod("")
@@ -80,6 +80,8 @@ SipTransaction::SipTransaction(SipMessage* initialMsg,
    , mProvoExtendsTimer(FALSE)
    , mWaitingList(NULL)
    , _markedForDeletion(false)
+   , mMaxUdpResend(mUdpRe)
+   , mMaxTcpResend(mTcpRe)
 {
 
 #  ifdef ROUTE_DEBUG
@@ -2828,7 +2830,9 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
                                            mIsUaTransaction,
                                            (  mpParentTransaction
                                             ? mpParentTransaction->mpBranchId
-                                            : NULL )
+					      : NULL ),
+					   mMaxUdpResend,
+					   mMaxTcpResend
                                            ); // same as parent
 
                     mpDnsDestinations[numSrvRecords].
@@ -3118,7 +3122,9 @@ UtlBoolean SipTransaction::recurseChildren(SipUserAgent& userAgent,
                      childTransaction = new SipTransaction(mpRequest,
                                                            TRUE, // outgoing
                                                            FALSE,
-                                                           mpBranchId
+                                                           mpBranchId,
+							   mMaxUdpResend,
+							   mMaxTcpResend
                                                            ); // proxy transaction
 
 #                   ifdef LOG_FORKING
@@ -3832,7 +3838,7 @@ UtlBoolean SipTransaction::doResend(SipMessage& resendMessage,
 
     if (protocol == OsSocket::UDP)
     {
-        if (numTries < SIP_UDP_RESEND_TIMES)
+        if (numTries < mMaxUdpResend)
         {
             // Try UDP again
             if (userAgent.sendUdp(&resendMessage, sendAddress.data(), sendPort))
@@ -3858,7 +3864,7 @@ UtlBoolean SipTransaction::doResend(SipMessage& resendMessage,
 #endif
            )
     {
-        if (numTries < SIP_TCP_RESEND_TIMES)
+        if (numTries < mMaxTcpResend)
         {
             bool r = !SipTransaction::enableTcpResend;
             // Try sending again.

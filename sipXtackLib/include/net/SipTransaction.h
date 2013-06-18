@@ -112,8 +112,11 @@ public:
     SipTransaction(SipMessage* initialMsg = NULL,     ///< message whose state this tracks
                    UtlBoolean isOutgoing = TRUE,          ///< direction
                    UtlBoolean userAgentTransaction = TRUE,///< local initiated
-                   BranchId*  parentBranch = NULL         ///< for use in loop detection
-                   );
+                   BranchId*  parentBranch = NULL,        ///< for use in loop detection
+                   int maxUdpResend = 4,
+		   int maxTcpResend = 4
+		   );
+
     /**<
      * When this is an out going request, this is a client
      * transaction.  The via header field MUST be added before
@@ -464,6 +467,8 @@ private:
     UtlBoolean mProvisionalSdp;          ///< early media
     UtlSList mTimers;                    /**< A list of all outstanding timers
                                           *   started by this transaction. */
+    const int mMaxUdpResend;
+    const int mMaxTcpResend;
     /**< SipTransaction Timer Usage
       * In this comment, "transaction" refers to the SipTransaction object in the code, not an RFC3261 transaction.
       * Timer objects contain the corresponding SipMessage to be used when events are processed.

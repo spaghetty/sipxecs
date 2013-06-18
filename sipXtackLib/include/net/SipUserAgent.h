@@ -265,8 +265,10 @@ public:
                 UtlBoolean bUseNextAvailablePort = FALSE,
                 UtlBoolean doUaMessageChecks = TRUE,
                 UtlBoolean forceSymmetricSignaling = TRUE,
-                OptionsRequestHandlePref howTohandleOptionsRequest = HANDLE_OPTIONS_AUTOMATICALLY
-                 );
+		OptionsRequestHandlePref howTohandleOptionsRequest = HANDLE_OPTIONS_AUTOMATICALLY,
+		int maxUdpResend = 4,
+		int maxTcpResend = 4
+                );
 
     //! Destructor
     virtual
@@ -837,6 +839,8 @@ private:
     bool mbIncludePlatformInUserAgentName;  // whether or not the platform name should
                                             // be appended to the user agent name
 
+    const int mMaxUdpResend;
+    const int mMaxTcpResend;
     /** check the acceptability of method, extensions, and encoding.
      * The default is TRUE; it may be set to false in applications such as a redirect server
      * that will never actually send a 2xx response, so the checks might cause errors that

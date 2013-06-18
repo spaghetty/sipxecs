@@ -11,6 +11,9 @@ SIPX_PROXY_STALE_TCP_TIMEOUT :
 SIPX_PROXY_TLS_PORT : $!{proxyService.secureSipPort}
 SIPX_PROXY_TCP_PORT : $!{proxyService.sipTCPPort}
 SIPX_PROXY_UDP_PORT : $!{proxyService.sipUDPPort}
+SIPX_PROXY_UDP_RESEND : $!{proxyService.sipUDPResend}
+SIPX_PROXY_TCP_RESEND : $!{proxyService.sipTCPResend}
+
 SIPX_PROXY_CALL_STATE :
 SIPX_PROXY_CALL_STATE_LOG :
 SIPX_PROXY_CALL_STATE_DB : $callResolverSettings.getSetting('CALLRESOLVER_CALL_STATE_DB').Value

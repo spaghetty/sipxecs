@@ -221,6 +221,8 @@ int proxy()
     int proxyTcpPort;
     int proxyUdpPort;
     int proxyTlsPort;
+    int proxyUdpResend;
+    int proxyTcpResend;
     UtlString bindIp;
     int maxForwards;    
     UtlString domainName;
@@ -282,6 +284,18 @@ int proxy()
        proxyTlsPort = 5061;
     }
     Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIPX_PROXY_TLS_PORT : %d", proxyTlsPort);
+    proxyUdpResend = configDb.getPort("SIPX_PROXY_UDP_RESEND") ;
+    if (proxyUdpResend<0)
+    {
+       proxyUdpResend = 4;
+    }
+    Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIPX_PROXY_UDP_RESEND : %d", proxyUdpResend);
+    proxyTcpResend = configDb.getPort("SIPX_PROXY_TCP_RESEND") ;
+    if (proxyTcpResend<0)
+    {
+       proxyTcpResend = 4;
+    }
+    Os::Logger::instance().log(FAC_SIP, PRI_INFO, "SIPX_PROXY_TCP_RESEND : %d", proxyTcpResend);
 
     configDb.get("SIPX_PROXY_MAX_FORWARDS", maxForwards);
     if(maxForwards <= 0) maxForwards = SIP_DEFAULT_MAX_FORWARDS;
@@ -610,7 +624,9 @@ int proxy()
         FALSE, // Use Next Available Port
         TRUE,  // Perform message checks 
         TRUE,  // Use symmetric signaling
-        SipUserAgent::HANDLE_OPTIONS_AUTOMATICALLY);
+        SipUserAgent::HANDLE_OPTIONS_AUTOMATICALLY,
+	proxyUdpResend,     // we need to get this from config
+	proxyTcpResend);    // this one too
 
 
     if (!pSipUserAgent->isOk())
