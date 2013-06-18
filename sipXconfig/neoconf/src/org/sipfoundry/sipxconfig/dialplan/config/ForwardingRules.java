@@ -20,6 +20,7 @@ import java.util.HashMap;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.VelocityEngine;
 import org.sipfoundry.sipxconfig.address.AddressManager;
+import org.sipfoundry.sipxconfig.address.Address;
 import org.sipfoundry.sipxconfig.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.dialplan.IDialingRule;
 import org.sipfoundry.sipxconfig.mwi.Mwi;
@@ -142,17 +143,23 @@ public class ForwardingRules extends RulesFile implements ApplicationContextAwar
 							  "&lt;"+ m_addressManager.getSingleAddress(Registrar.TCP_ADDRESS, getLocation()).stripProtocol()
 							  + ";transport=tcp;x-sipx-routetoreg&gt;");
 
-	Map<String, String> msgSummary = new HashMap<String, String>();
-	msgSummary.put("name","\"Event\"");
-	msgSummary.put("pattern","message-summary.*");
-	msgSummary.put("routeTo","&lt;"+ m_addressManager.getSingleAddress(Mwi.SIP_TCP, getLocation()).stripProtocol()+";transport=tcp&gt;");
+	Address mwiSingleAddress = m_addressManager.getSingleAddress(Mwi.SIP_TCP, getLocation());
+	if(null != mwiSingleAddress ) {
+	    Map<String, String> msgSummary = new HashMap<String, String>();
+	    msgSummary.put("name","\"Event\"");
+	    msgSummary.put("pattern","message-summary.*");
+	    msgSummary.put("routeTo","&lt;"+ mwiSingleAddress.stripProtocol()+";transport=tcp&gt;");
+	    subscribe.addField(msgSummary);
+	}
 
-	Map<String, String> reg = new HashMap<String, String>();
-	reg.put("name","\"Event\"");
-	reg.put("pattern","reg");
-	reg.put("routeTo","&lt;"+ m_addressManager.getSingleAddress(Registrar.EVENT_ADDRESS, getLocation()).stripProtocol()+";transport=tcp&gt;");
-	subscribe.addField(msgSummary);
-	subscribe.addField(reg);
+	Address registrarAddress = m_addressManager.getSingleAddress(Registrar.EVENT_ADDRESS, getLocation());
+	if(null!=registrarAddress) {
+	    Map<String, String> reg = new HashMap<String, String>();
+	    reg.put("name","\"Event\"");
+	    reg.put("pattern","reg");
+	    reg.put("routeTo","&lt;"+ registrarAddress.stripProtocol()+";transport=tcp&gt;");
+	    subscribe.addField(reg);
+	}
 
 	// List of all method 
 	Map<String, ForwardingMethod> methodsLocalFwd = new HashMap<String, ForwardingMethod>();
