@@ -20,6 +20,7 @@ example_RESOURCES = \
 
 example_PKGS = \
 	sipxconfig-neoconf \
+	sipxconfig-web \
 	tapestry-annotations \
 	tapestry-framework \
 	hivemind
