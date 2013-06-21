@@ -21,10 +21,6 @@ import java.util.Map;
 
 public interface ForwardLocalRuleProvider {
     
-    String getForwardLocalRuleName();
-    
-    String getForwardLocalRuleValue();
-    
     Map getMethodField();
     
     boolean isEnabled();
