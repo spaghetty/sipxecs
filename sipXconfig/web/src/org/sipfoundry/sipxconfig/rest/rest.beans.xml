@@ -191,7 +191,7 @@
     <property name="activeConferenceContext" ref="activeConferenceContext" />
     <property name="available" value="true" />
     <property name="readable" value="true" />
-    <property name="modifiable" value="false" />
+    <property name="modifiable" value="true" />
   </bean>
   <alias name="conferenceCommandsResource" alias="/my/conference/{confName}/{command}" />
 
@@ -199,7 +199,7 @@
     <property name="coreContext" ref="coreContext" />
     <property name="cdrManager" ref="cdrManager" />
     <property name="readable" value="true" />
-    <property name="modifiable" value="false" />
+    <property name="modifiable" value="true" />
   </bean>
   <alias name="activecdrsResource" alias="/my/activecdrs" />
 
