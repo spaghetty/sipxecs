@@ -541,8 +541,10 @@ UtlBoolean SipXProxyCseObserver::handleMessage(OsMsg& eventMessage)
                               callIdBranchIdTime->setPaiPresent(&paiPresent);
                            }
                            else {
-                              mCallTransMutex.release();
-                              return(TRUE);
+                             if ( not requestUri.contains("sipxecs-lineid") ) {
+                               mCallTransMutex.release();
+                               return(TRUE);
+                             }
                            }
                         }
                         else {
@@ -552,7 +554,8 @@ UtlBoolean SipXProxyCseObserver::handleMessage(OsMsg& eventMessage)
                      }
                      mCallTransMutex.release();
                   }
-                  mpBuilder->callRequestEvent(mSequenceNumber, timeNow, contact, references, branchId, viaCount, paiPresent);
+
+                  mpBuilder->callRequestEvent(mSequenceNumber, timeNow, requestUri, contact, references, branchId, viaCount, paiPresent);
                   break;
                   
                case aCallSetup:
@@ -570,7 +573,7 @@ UtlBoolean SipXProxyCseObserver::handleMessage(OsMsg& eventMessage)
                   {
                      // CallId/BranchId are either not found or doesn't match.  Not a final response.
                      mCallTransMutex.release();
-                     return(TRUE);
+                     //return(TRUE);
                   }
                   for (int rrNum = 0;
                        (!routeFound && sipMsg->getRecordRouteUri(rrNum, &recordRoute));

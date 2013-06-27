@@ -93,6 +93,12 @@ public class CdrManagerImplTest extends TestCase {
         rs.getString("termination");
         expectLastCall().andReturn("I");
 
+	rs.getString("called_number");
+	expectLastCall().andReturn("");
+
+	rs.getInt("gateway");
+	expectLastCall().andReturn(0);
+
         rs.getBoolean("caller_internal");
         expectLastCall().andReturn(true);
     
