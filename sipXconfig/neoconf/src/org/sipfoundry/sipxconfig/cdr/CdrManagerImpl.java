@@ -313,6 +313,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
                 Set<String> names = user.getAliases();
                 names.add(user.getName());
                 m_forUser.setTerm(names.toArray(new String[0]));
+                m_forUser.setUser(user);
             }
         }
 
