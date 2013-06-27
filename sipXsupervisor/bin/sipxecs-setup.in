@@ -276,7 +276,11 @@ def network_settings
     net = get_network(true)
     puts "\e[0;31mNetwork settings:\e[m"
     puts "IP address   : #{net.ip}"
-    reprompt = prompt_confirm("Would you like to configure your system\'s \e[0;31m network settings\e[m?") unless $prompt[:noui]
+    if net.net_defined
+      reprompt = prompt_confirm("Would you like to configure your system\'s \e[0;31m network settings\e[m?") unless $prompt[:noui]
+    else
+      reprompt = true
+    end
     if reprompt
       change = true
       system("/usr/sbin/system-config-network-tui")
@@ -331,14 +335,20 @@ def get_network(force = false)
 end
 
 class Network
-  attr_accessor :ip, :host, :domain
+  attr_accessor :ip, :host, :domain, :net_defined
 
   def initialize
-    orig, Socket.do_not_reverse_lookup = Socket.do_not_reverse_lookup, true
-    UDPSocket.open { |s|
-      s.connect '8.8.8.8', 1
-      @ip = s.addr.last
-    }
+    begin
+      orig, Socket.do_not_reverse_lookup = Socket.do_not_reverse_lookup, true
+      UDPSocket.open { |s|
+        s.connect '8.8.8.8', 1
+        @ip = s.addr.last
+        @net_defined = true
+      }
+    rescue
+      @ip=""
+      @net_defined = false
+    end
 
     # hostname call is not reliable, check hosts file for more accurate answer
     # the network config tool system-config-network-tui  does not create a clean
