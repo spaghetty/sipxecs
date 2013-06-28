@@ -95,6 +95,7 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
     static final String CALLER_CONTACT = "caller_contact";
     static final String CALLED_NUMBER = "called_number";
     static final String GATEWAY = "gateway";
+    static final String EMPTY = "";
 
     private int m_csvLimit;
     private int m_jsonLimit;
@@ -134,13 +135,13 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
     public List<Cdr> getCdrs(Date from, Date to, CdrSearch search, User user, int limit, int offset) {
         CdrsStatementCreator psc = new SelectAll(from, to, search, user, (user != null) ? (user.getTimezone())
                 : m_tz, limit, offset);
-	boolean privacy = false;
+        boolean privacy = false;
         int pLimit = 0;
-        String pExcluded = "";
-        if ( user==null ) {
+        String pExcluded = EMPTY;
+        if (user == null) {
             privacy = getSettings().getPrivacyStatus();
             pLimit = getSettings().getPrivacyMinLength();
-            pExcluded = getSettings().getPrivacyExcludeList(); 
+            pExcluded = getSettings().getPrivacyExcludeList();
         }
         CdrsResultReader resultReader = new CdrsResultReader((user != null) ? (user.getTimezone())
                 : (TimeZone.getTimeZone(m_ntpManager.getSystemTimezone())),
@@ -399,21 +400,21 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
         private final Calendar m_calendar;
         private TimeZone m_systemTimeZone;
         private boolean m_privacy;
-        private int m_privacy_limit;
-        private String m_privacy_excluded;
+        private int m_privacyLimit;
+        private String m_privacyExcluded;
 
         public CdrsResultReader(TimeZone tz) {
             m_calendar = Calendar.getInstance(tz);
             m_privacy = false;
-            m_privacy_limit = 0;
-            m_privacy_excluded = "";
+            m_privacyLimit = 0;
+            m_privacyExcluded = "";
         }
 
         public CdrsResultReader(TimeZone tz, boolean privacy, int limit, String excluded) {
             m_calendar = Calendar.getInstance(tz);
             m_privacy = privacy;
-            m_privacy_limit = limit;
-            m_privacy_excluded = excluded;
+            m_privacyLimit = limit;
+            m_privacyExcluded = excluded;
         }
 
         public List<Cdr> getResults() {
@@ -423,15 +424,15 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager, Featur
         @Override
         public void processRow(ResultSet rs) throws SQLException {
             Cdr cdr = new Cdr();
-	    if (!m_privacy) {
-		cdr.setCalleeAor(rs.getString(CALLEE_AOR));
-		cdr.setCallerAor(rs.getString(CALLER_AOR));
-		cdr.setCalledNumber(rs.getString(CALLED_NUMBER));
-	    } else {
-		cdr.setMaskedCalleeAor(rs.getString(CALLEE_AOR), m_privacy_limit, m_privacy_excluded);
-		cdr.setMaskedCallerAor(rs.getString(CALLER_AOR), m_privacy_limit, m_privacy_excluded);
-		cdr.setMaskedCalledNumber(rs.getString(CALLED_NUMBER), m_privacy_limit, m_privacy_excluded);
-	    }
+            if (!m_privacy) {
+                cdr.setCalleeAor(rs.getString(CALLEE_AOR));
+                cdr.setCallerAor(rs.getString(CALLER_AOR));
+                cdr.setCalledNumber(rs.getString(CALLED_NUMBER));
+            } else {
+                cdr.setMaskedCalleeAor(rs.getString(CALLEE_AOR), m_privacyLimit, m_privacyExcluded);
+                cdr.setMaskedCallerAor(rs.getString(CALLER_AOR), m_privacyLimit, m_privacyExcluded);
+                cdr.setMaskedCalledNumber(rs.getString(CALLED_NUMBER), m_privacyLimit, m_privacyExcluded);
+            }
             cdr.setCallId(rs.getString(CALL_ID));
             cdr.setReference(rs.getString(CALL_REFERENCE));
             cdr.setCallerInternal(rs.getBoolean(CALLER_INTERNAL));

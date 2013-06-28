@@ -101,29 +101,29 @@ public class NatTraversalImpl implements NatTraversal, FeatureProvider, ProcessP
             return null;
         }
 
-	List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(ProxyManager.FEATURE);
-	List<Address> addresses = new ArrayList<Address>(locations.size());
+        List<Location> locations = manager.getFeatureManager().getLocationsForEnabledFeature(ProxyManager.FEATURE);
+        List<Address> addresses = new ArrayList<Address>(locations.size());
 
-	if (type.equals(RELAY_RTP)) {
-	    for (Location location : locations) {
-	        Address a = new Address(type, location.getAddress(), location.getStartRtpPort());
-	        a.setEndPort(location.getStopRtpPort());
-	        addresses.add(a);
-	    }
-	}
-	if (type.equals(RELAY_RPC)) {
-	    for (Location location : locations) {
-		Address a = new Address(type, location.getAddress(), getSettings().getXmlRpcPort());
-		addresses.add(a);
-	    }
-	}
+        if (type.equals(RELAY_RTP)) {
+            for (Location location : locations) {
+                Address a = new Address(type, location.getAddress(), location.getStartRtpPort());
+                a.setEndPort(location.getStopRtpPort());
+                addresses.add(a);
+            }
+        }
+        if (type.equals(RELAY_RPC)) {
+            for (Location location : locations) {
+                Address a = new Address(type, location.getAddress(), getSettings().getXmlRpcPort());
+                addresses.add(a);
+            }
+        }
         return addresses;
     }
 
     @Override
     public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
         return Arrays.asList(new DefaultFirewallRule(RELAY_RTP, FirewallRule.SystemId.PUBLIC, true),
-			     new DefaultFirewallRule(RELAY_RPC, FirewallRule.SystemId.CLUSTER, false));
+                             new DefaultFirewallRule(RELAY_RPC, FirewallRule.SystemId.CLUSTER, false));
     }
 
     @Override

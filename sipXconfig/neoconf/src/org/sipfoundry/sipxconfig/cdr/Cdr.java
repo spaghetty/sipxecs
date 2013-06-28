@@ -57,6 +57,9 @@ public class Cdr implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private static final String CALLTAG_DELIM = ",";
+    private static final String OBFUSCATOR = "***";
+    private static final String EMPTY = "";
+    private static final String SPACE = " ";
 
     private String m_callerAor;
     private String m_calleeAor;
@@ -114,20 +117,20 @@ public class Cdr implements Serializable {
     public void setMaskedCalleeAor(String calleeAor, int limit, String excluded) {
         m_calleeAor = calleeAor;
         m_callee = SipUri.extractUser(calleeAor);
-	if(m_callee.length() > limit) {
-	    m_callee = m_callee.substring(0, m_callee.length()-3)+"***";
-	} else {
-            if(m_callee.length()==limit) {
-                String[] exclude = excluded.split(" ");
+        if (m_callee.length() > limit) {
+            m_callee = m_callee.substring(0, m_callee.length() - 3) + OBFUSCATOR;
+        } else {
+            if (m_callee.length() == limit) {
+                String[] exclude = excluded.split(SPACE);
                 boolean isExcluded = false;
-                for(String prefix:  exclude) {
-                    if(prefix!="" && m_callee.startsWith(prefix)) {
-                       isExcluded = true;
-                       break;
+                for (String prefix :  exclude) {
+                    if (prefix != EMPTY && m_callee.startsWith(prefix)) {
+                        isExcluded = true;
+                        break;
                     }
                 }
-                if(!isExcluded) {
-                    m_callee = m_callee.substring(0, m_callee.length()-3)+"***";
+                if (!isExcluded) {
+                    m_callee = m_callee.substring(0, m_callee.length() - 3) + OBFUSCATOR;
                 }
             }
         }
@@ -162,20 +165,20 @@ public class Cdr implements Serializable {
     public void setMaskedCallerAor(String callerAor, int limit, String excluded) {
         m_callerAor = callerAor;
         m_caller = SipUri.extractUser(callerAor);
-	if(m_caller.length() > limit) {
-	    m_caller = m_caller.substring(0, m_caller.length()-3)+"***";
-	}else {
-            if(m_caller.length()==limit) {
-                String[] exclude = excluded.split(" ");
+        if (m_caller.length() > limit) {
+            m_caller = m_caller.substring(0, m_caller.length() - 3) + OBFUSCATOR;
+        } else {
+            if (m_caller.length() == limit) {
+                String[] exclude = excluded.split(SPACE);
                 boolean isExcluded = false;
-                for(String prefix:  exclude) {
-                    if(prefix!="" && m_caller.startsWith(prefix)) {
-                       isExcluded = true;
-                       break;
+                for (String prefix :  exclude) {
+                    if (prefix != EMPTY && m_caller.startsWith(prefix)) {
+                        isExcluded = true;
+                        break;
                     }
                 }
-                if(!isExcluded) {
-                    m_caller = m_caller.substring(0, m_caller.length()-3)+"***";
+                if (!isExcluded) {
+                    m_caller = m_caller.substring(0, m_caller.length() - 3) + OBFUSCATOR;
                 }
             }
         }
@@ -355,20 +358,20 @@ public class Cdr implements Serializable {
     public void setMaskedCalledNumber(String calledNumber, int limit, String excluded) {
         m_calledNumberAor = calledNumber;
         m_calledNumber = SipUri.extractUser(calledNumber);
-	if(m_calledNumber.length() > limit) {
-	    m_calledNumber = m_calledNumber.substring(0, m_calledNumber.length()-3)+"***";
-	}else {
-            if(m_calledNumber.length()==limit) {
-                String[] exclude = excluded.split(" ");
+        if (m_calledNumber.length() > limit) {
+            m_calledNumber = m_calledNumber.substring(0, m_calledNumber.length() - 3) + OBFUSCATOR;
+        } else {
+            if (m_calledNumber.length() == limit) {
+                String[] exclude = excluded.split(SPACE);
                 boolean isExcluded = false;
-                for(String prefix:  exclude) {
-                    if(prefix!="" && m_calledNumber.startsWith(prefix)) {
-                       isExcluded = true;
-                       break;
+                for (String prefix :  exclude) {
+                    if (prefix != EMPTY && m_calledNumber.startsWith(prefix)) {
+                        isExcluded = true;
+                        break;
                     }
                 }
-                if(!isExcluded) {
-                    m_calledNumber = m_calledNumber.substring(0, m_caller.length()-3)+"***";
+                if (!isExcluded) {
+                    m_calledNumber = m_calledNumber.substring(0, m_caller.length() - 3) + OBFUSCATOR;
                 }
             }
         }

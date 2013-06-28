@@ -31,18 +31,19 @@ public class CdrSettings extends PersistableSettings implements DeployConfigOnEd
     }
 
     public boolean getPrivacyStatus() {
-	return (Boolean) getSettingTypedValue("callresolver/SIP_CALLRESOLVER_PRIVACY");
+        return (Boolean) getSettingTypedValue("callresolver/SIP_CALLRESOLVER_PRIVACY");
     }
 
     public int getPrivacyMinLength() {
-	return (Integer) getSettingTypedValue("callresolver/SIP_CALLRESOLVER_PRIVACY_LENGTH");
+        return (Integer) getSettingTypedValue("callresolver/SIP_CALLRESOLVER_PRIVACY_LENGTH");
     }
 
     public String getPrivacyExcludeList() {
         String excludeList = (String) getSettingTypedValue("callresolver/SIP_CALLRESOLVER_PRIVACY_EXCLUDE");
-        if( excludeList == null)
+        if (excludeList == null) {
             excludeList = "";
-	return excludeList;
+        }
+        return excludeList;
     }
 
     @Override
