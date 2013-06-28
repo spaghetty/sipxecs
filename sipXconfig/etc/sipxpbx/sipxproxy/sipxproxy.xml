@@ -72,6 +72,18 @@
       </type>
       <value>5061</value>
     </setting>
+    <setting name="SIPX_PROXY_UDP_RESEND" advanced="yes">
+      <type>
+        <integer />
+      </type>
+      <value>4</value>
+    </setting>
+    <setting name="SIPX_PROXY_TCP_RESEND" advanced="yes">
+      <type>
+        <integer />
+      </type>
+      <value>4</value>
+    </setting>
     <setting name="SIPX_PROXY_AUTHENTICATE_ALGORITHM" advanced="yes">
       <type><string/></type>      
     </setting>

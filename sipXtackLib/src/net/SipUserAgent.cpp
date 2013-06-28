@@ -118,7 +118,9 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
                            UtlBoolean bUseNextAvailablePort,
                            UtlBoolean doUaMessageChecks,
                            UtlBoolean bForceSymmetricSignaling,
-                           OptionsRequestHandlePref howTohandleOptionsRequest
+                           OptionsRequestHandlePref howTohandleOptionsRequest,
+			   int mudpr,
+			   int mtcpr
                            )
         : SipUserAgentBase(sipTcpPort, sipUdpPort, sipTlsPort, queueSize)
         , mSipTcpServer(NULL)
@@ -137,6 +139,8 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
         , mbForceSymmetricSignaling(bForceSymmetricSignaling)
         , mbShuttingDown(FALSE)
         , mbShutdownDone(FALSE)
+	, mMaxUdpResend(mudpr)
+	, mMaxTcpResend(mtcpr)
 {
    Os::Logger::instance().log(FAC_SIP, PRI_DEBUG,
                  "SipUserAgent[%s]::_ sipTcpPort = %d, sipUdpPort = %d, "
@@ -999,7 +1003,8 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
          // Create a new transactions
          // This should only be for requests
          // so it should not be a server transaction
-         transaction = new SipTransaction(&message, TRUE /* outgoing */, isUaTransaction);
+         transaction = new SipTransaction(&message, TRUE /* outgoing */, isUaTransaction, NULL, 
+					  mMaxUdpResend, mMaxTcpResend);
          transaction->markBusy();
          mSipTransactions.addTransaction(transaction);
 
@@ -1763,7 +1768,8 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
          else
          {
              // Should create a server transaction
-            transaction = new SipTransaction(message, FALSE /* incoming */, isUaTransaction);
+	    transaction = new SipTransaction(message, FALSE /* incoming */, isUaTransaction, NULL,
+					     mMaxUdpResend, mMaxTcpResend);
 
             // Add the new transaction to the list
             transaction->markBusy();
