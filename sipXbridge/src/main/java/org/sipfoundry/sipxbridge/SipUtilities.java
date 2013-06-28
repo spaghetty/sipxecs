@@ -1042,16 +1042,35 @@ class SipUtilities {
 			for (Iterator it = mediaDescriptions.iterator(); it.hasNext();) {
 				MediaDescription mediaDescription = (MediaDescription) it
 						.next();
+				int telephoneEvent = -1;
 				if (mediaDescription.getMedia().getMediaType().equals("audio")) {
-					Vector formats = mediaDescription.getMedia()
-							.getMediaFormats(true);
-					for (Iterator it1 = formats.iterator(); it1.hasNext();) {
-						Object format = it1.next();
-						int fmt = new Integer(format.toString());
-						if (fmt != 100 && fmt != 101) {
-							retval.add(fmt);
+				    Vector attributes = mediaDescription.getAttributes(true);
+				    
+				    for (Iterator it1 = attributes.iterator(); it1.hasNext();) {
+					Attribute attr = (Attribute) it1.next();
+
+					if (attr.getName().equalsIgnoreCase("rtpmap") || attr.getName().equalsIgnoreCase("fmtp")) {
+					    String attribute = attr.getValue();
+					    String[] attrs = attribute.split(" ");
+					    if (!attrs[1].startsWith("telephone-event")) {
+						try{
+						    telephoneEvent = Integer.parseInt(attrs[0]);
+						} catch ( NumberFormatException ex) {
+						    logger.warn("could not parse RTP Map " + attrs[0]);
+						    continue;
 						}
+					    }
 					}
+				    }
+				    Vector formats = mediaDescription.getMedia()
+							.getMediaFormats(true);
+				    for (Iterator it1 = formats.iterator(); it1.hasNext();) {
+					Object format = it1.next();
+					int fmt = new Integer(format.toString());
+					if (fmt != telephoneEvent) {
+					    retval.add(fmt);
+					}
+				    }
 				}
 			}
 			return retval;
@@ -1127,27 +1146,8 @@ class SipUtilities {
 				Vector formats = mediaDescription.getMedia().getMediaFormats(
 						true);
 				String mediaType = mediaDescription.getMedia().getMediaType();
-
+				int telephoneEvent = -1;
 				if ( mediaType.equals("audio")) {
-					for (Iterator it1 = formats.iterator(); it1.hasNext();) {
-						Object format = it1.next();
-						try {
-							Integer fmt = new Integer(format.toString());
-							if (!codecs.contains(fmt)) {
-								/*
-								 * Preserve the telephone event lines -- this upsets
-								 * some ITSPs otherwise. AT&T Hack.
-								 */
-								if (fmt != 100 && fmt != 101) {
-									it1.remove();
-								}
-							}
-						} catch (NumberFormatException ex) {
-							logger.warn("Could not parse media format " + format);
-							continue;
-						}
-					}
-
 					Vector attributes = mediaDescription.getAttributes(true);
 					for (Iterator it1 = attributes.iterator(); it1.hasNext();) {
 						Attribute attr = (Attribute) it1.next();
@@ -1161,17 +1161,18 @@ class SipUtilities {
 							String[] attrs = attribute.split(" ");
 							try {
 								int rtpMapCodec = Integer.parseInt(attrs[0]);
-
-								if (!codecs.contains(rtpMapCodec)) {
-									/*
-									 * Preserve the telephone event lines -- this upsets
-									 * some ITSPs otherwise. AT&T Hack.
-									 */
-									if (rtpMapCodec != 100 && rtpMapCodec != 101) {
+								/*
+								 * Preserve the telephone event lines -- this upsets
+								 * some ITSPs otherwise. AT&T Hack.
+								 */
+								if (!codecs.contains(rtpMapCodec) && rtpMapCodec!=telephoneEvent) {
+								        if (!attrs[1].startsWith("telephone-event")) {
 									    if ( logger.isDebugEnabled()) {
 									        logger.debug("codecs does not contain " + rtpMapCodec + " removing it ");
 									    }
 										it1.remove();
+									} else {
+									    telephoneEvent=rtpMapCodec;
 									}
 								}
 							} catch ( NumberFormatException ex) {
@@ -1187,6 +1188,23 @@ class SipUtilities {
 						}
 
 					}
+					for (Iterator it1 = formats.iterator(); it1.hasNext();) {
+						Object format = it1.next();
+						try {
+							Integer fmt = new Integer(format.toString());
+							/*
+							 * Preserve the telephone event lines -- this upsets
+							 * some ITSPs otherwise. AT&T Hack.
+							 */
+							if (!codecs.contains(fmt) && telephoneEvent!=fmt) {
+							    it1.remove();
+							}
+						} catch (NumberFormatException ex) {
+							logger.warn("Could not parse media format " + format);
+							continue;
+						}
+					}
+
 				}
 
 			}
