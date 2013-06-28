@@ -7,13 +7,14 @@
 package org.sipfoundry.sipxconfig.web.plugin;
 
 import org.apache.tapestry.annotations.InjectObject;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.Example;
 
 /**
  * Tapestry 4 page to do whatever you want.
  */
-public abstract class PluginTestPage extends BasePage {
+public abstract class PluginTestPage extends SipxBasePage {
 
     /**
      * inject your service into the page to perform operations, read/write data, etc. Tapestry integration
