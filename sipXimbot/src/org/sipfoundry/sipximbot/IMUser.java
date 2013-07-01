@@ -681,7 +681,11 @@ public class IMUser {
                     Socket socket = new Socket("localhost", 8021);
 
                     if (fses.connect(socket, "ClueCon")) {
-                        ListenIn listenIn = new ListenIn(fses, m_user.getIdentity(),
+			String uri = m_user.getIdentity();
+			if ( m_user.isImFwdToMobile() && !"".equals(m_user.getCellNum())){
+			    uri = m_user.getCellNum()+"@"+config.getSipxchangeDomainName();
+			}   
+                        ListenIn listenIn = new ListenIn(fses, uri,
                                                          uuid, config.getSipxchangeDomainName());
                         listenIn.go();
                     }

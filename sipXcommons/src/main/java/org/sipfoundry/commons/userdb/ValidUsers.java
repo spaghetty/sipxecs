@@ -612,6 +612,7 @@ public class ValidUsers {
         user.setCallIM(getStringValue(obj, CALL_IM));
         user.setCallFromAnyIM(getStringValue(obj, CALL_FROM_ANY_IM));
         user.setImEnabled(Boolean.valueOf(getStringValue(obj, IM_ENABLED)));
+	user.setImFwdToMobile(Boolean.valueOf(getStringValue(obj, IM_FWD_TO_MOBILE)));
         user.setJid(getStringValue(obj, IM_ID));
         user.setAltJid(getStringValue(obj, ALT_IM_ID));
         user.setImDisplayName(getStringValue(obj, IM_DISPLAY_NAME));

@@ -411,6 +411,12 @@
       </type>
       <value>0</value>
     </setting>
+    <setting name="fwd-cmd-to-mobile">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
   </group>
   <group name="im_notification">
     <setting name="conferenceEntryIM">

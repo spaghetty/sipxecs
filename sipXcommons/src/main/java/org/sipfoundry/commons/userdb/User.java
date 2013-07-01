@@ -43,6 +43,7 @@ public class User {
     private String m_cellNumber;
     private String m_homeNumber;
     private boolean m_imEnabled;
+    private boolean m_imFwdToMobile;
     private String m_jid;
     private String m_altjid;
     private String m_confName;
@@ -462,6 +463,14 @@ public class User {
 
     public void setImEnabled(boolean enabled) {
         m_imEnabled = enabled;
+    }
+
+    public boolean isImFwdToMobile() {
+	return m_imFwdToMobile;
+    }
+
+    public void setImFwdToMobile(boolean enabled) {
+	m_imFwdToMobile = enabled;
     }
 
     public String getImDisplayName() {

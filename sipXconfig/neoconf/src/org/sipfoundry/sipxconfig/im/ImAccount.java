@@ -121,4 +121,8 @@ public class ImAccount {
     public boolean isForwardOnDnd() {
         return (Boolean) m_user.getSettingTypedValue("im/fwd-vm-on-dnd");
     }
+
+    public boolean isForwardToMobile() {
+	return (Boolean) m_user.getSettingTypedValue("im/fwd-cmd-to-mobile");
+    }
 }

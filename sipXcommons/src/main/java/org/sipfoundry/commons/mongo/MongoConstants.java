@@ -53,6 +53,7 @@ public interface MongoConstants {
     static final String IM_ON_THE_PHONE_MESSAGE = "onphnmsg";
     static final String IM_ADVERTISE_ON_CALL_STATUS = "advcllsts";
     static final String IM_SHOW_ON_CALL_DETAILS = "clldttls";
+    static final String IM_FWD_TO_MOBILE = "fwdtomobile";
     static final String JOB_TITLE = "jbttl";
     static final String JOB_DEPT = "jbdpt";
     static final String COMPANY_NAME = "cmpnm";

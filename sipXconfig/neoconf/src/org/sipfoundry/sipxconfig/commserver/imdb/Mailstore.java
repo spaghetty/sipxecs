@@ -36,6 +36,7 @@ import static org.sipfoundry.commons.mongo.MongoConstants.HOST;
 import static org.sipfoundry.commons.mongo.MongoConstants.IM_ADVERTISE_ON_CALL_STATUS;
 import static org.sipfoundry.commons.mongo.MongoConstants.IM_DISPLAY_NAME;
 import static org.sipfoundry.commons.mongo.MongoConstants.IM_ENABLED;
+import static org.sipfoundry.commons.mongo.MongoConstants.IM_FWD_TO_MOBILE;
 import static org.sipfoundry.commons.mongo.MongoConstants.IM_ID;
 import static org.sipfoundry.commons.mongo.MongoConstants.IM_ON_THE_PHONE_MESSAGE;
 import static org.sipfoundry.commons.mongo.MongoConstants.IM_SHOW_ON_CALL_DETAILS;
@@ -156,6 +157,7 @@ public class Mailstore extends AbstractDataSetGenerator {
 
         ImAccount imAccount = new ImAccount(user);
         top.put(IM_ENABLED, imAccount.isEnabled());
+	top.put(IM_FWD_TO_MOBILE, imAccount.isForwardToMobile());
         // The following settings used to be in contact-information.xml
         putOnlyIfNotNull(top, IM_ID, imAccount.getImId().toLowerCase());
         putOnlyIfNotNull(top, IM_DISPLAY_NAME, imAccount.getImDisplayName());
