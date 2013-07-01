@@ -332,6 +332,10 @@
       <type refid="on-off" />
       <value>off</value>
     </setting>
+    <setting name="lastName_first" advanced="yes">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
   </group>
   <group name="SIP_Stack_Settings">
     <setting name="rtp_port_start">
