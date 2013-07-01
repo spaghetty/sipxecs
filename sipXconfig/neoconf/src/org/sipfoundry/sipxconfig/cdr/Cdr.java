@@ -356,11 +356,11 @@ public class Cdr implements Serializable {
     }
 
     public void setMaskedCalledNumber(String calledNumber, int limit, String excluded) {
-	m_calledNumberAor = calledNumber;
+        m_calledNumberAor = calledNumber;
         m_calledNumber = SipUri.extractUser(calledNumber);
-	if ( calledNumber==null || calledNumber.isEmpty()) {
-	    return; 
-	}
+        if (calledNumber == null || calledNumber.isEmpty()) {
+            return; 
+        }
         if (m_calledNumber.length() > limit) {
             m_calledNumber = m_calledNumber.substring(0, m_calledNumber.length() - 3) + OBFUSCATOR;
         } else {
