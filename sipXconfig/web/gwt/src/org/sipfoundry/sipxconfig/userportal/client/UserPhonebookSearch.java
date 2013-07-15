@@ -279,8 +279,16 @@ public class UserPhonebookSearch implements EntryPoint {
             ListGridField lastNameField = new ListGridField(PhonebookDataSource.LAST_NAME, s_searchConstants
                     .lastName());
             ListGridField numberField = new ListGridField(PhonebookDataSource.NUMBER, s_searchConstants.number());
+
+            ListGridField cellPhoneNumberField = new ListGridField(PhonebookDataSource.CELL_PHONE_NUMBER, "Cell Number");
+            ListGridField homePhoneNumberField = new ListGridField(PhonebookDataSource.HOME_PHONE_NUMBER, "Home Number");
+            ListGridField faxNumberField = new ListGridField(PhonebookDataSource.FAX_NUMBER, "Fax Number");
+            ListGridField homeStreetField = new ListGridField(PhonebookDataSource.HOME_STREET, "Home Street");
+            ListGridField officeStreetField = new ListGridField(PhonebookDataSource.OFFICE_STREET, "Office Street");
+
             ListGridField emailField = new ListGridField(PhonebookDataSource.EMAIL_ADDRESS, s_searchConstants
                     .emailAddress());
+            ListGridField companyField = new ListGridField(PhonebookDataSource.COMPANY_NAME, s_searchConstants.companyName());
 
             firstNameField.setWidth(NRML_TABLE_FIELD_WIDTH);
             firstNameField.setCellFormatter(getHtmlCellFormatter());
@@ -289,7 +297,15 @@ public class UserPhonebookSearch implements EntryPoint {
             lastNameField.setCellFormatter(getHtmlCellFormatter());
 
             numberField.setWidth(NRML_TABLE_FIELD_WIDTH);
+            cellPhoneNumberField.setWidth(NRML_TABLE_FIELD_WIDTH);
+            homePhoneNumberField.setWidth(NRML_TABLE_FIELD_WIDTH);
+            faxNumberField.setWidth(NRML_TABLE_FIELD_WIDTH);
+            homeStreetField.setWidth(NRML_TABLE_FIELD_WIDTH);
+            homeStreetField.setCellFormatter(getHtmlCellFormatter());
+            officeStreetField.setWidth(NRML_TABLE_FIELD_WIDTH);
+            officeStreetField.setCellFormatter(getHtmlCellFormatter());
             emailField.setWidth(WILD_CARD);
+            companyField.setWidth(WILD_CARD);
 
             setEmptyMessage(s_searchConstants.noUserFound());
             setWidth100();
@@ -305,8 +321,10 @@ public class UserPhonebookSearch implements EntryPoint {
 
             setCellHeight(25);
             setHeaderHeight(35);
-            setFields(firstNameField, lastNameField, numberField, emailField);
+            setFields(firstNameField, lastNameField, numberField, emailField, companyField,
+		      cellPhoneNumberField, homePhoneNumberField, faxNumberField, homeStreetField, officeStreetField);
 
+	    hideFields(cellPhoneNumberField, homePhoneNumberField, faxNumberField, homeStreetField, officeStreetField);
             setCanExpandRecords(true);
         }
 
@@ -370,8 +388,14 @@ public class UserPhonebookSearch implements EntryPoint {
         private final TextItem m_firstName;
         private final TextItem m_lastName;
         private final TextItem m_number;
+        private final TextItem m_homePhoneNumber;
+        private final TextItem m_cellPhoneNumber;
+        private final TextItem m_faxNumber;
+        private final TextItem m_homeStreet;
+        private final TextItem m_officeStreet;
         private final TextItem m_email;
         private final TextItem m_fullName;
+        private final TextItem m_companyName;
 
         public SearchForm(DataSource phonebookDS) {
             m_firstName = new TextItem();
@@ -389,6 +413,32 @@ public class UserPhonebookSearch implements EntryPoint {
             m_number.setOperator(OperatorId.ISTARTS_WITH);
             m_number.setVisible(false);
 
+            m_homePhoneNumber = new TextItem();
+            m_homePhoneNumber.setCriteriaField(PhonebookDataSource.HOME_PHONE_NUMBER);
+            m_homePhoneNumber.setOperator(OperatorId.ISTARTS_WITH);
+            m_homePhoneNumber.setVisible(false);
+
+
+            m_cellPhoneNumber = new TextItem();
+            m_cellPhoneNumber.setCriteriaField(PhonebookDataSource.CELL_PHONE_NUMBER);
+            m_cellPhoneNumber.setOperator(OperatorId.ISTARTS_WITH);
+            m_cellPhoneNumber.setVisible(false);
+
+            m_faxNumber = new TextItem();
+            m_faxNumber.setCriteriaField(PhonebookDataSource.FAX_NUMBER);
+            m_faxNumber.setOperator(OperatorId.ISTARTS_WITH);
+            m_faxNumber.setVisible(false);
+
+            m_homeStreet = new TextItem();
+            m_homeStreet.setCriteriaField(PhonebookDataSource.HOME_STREET);
+            m_homeStreet.setOperator(OperatorId.ISTARTS_WITH);
+            m_homeStreet.setVisible(false);
+
+            m_officeStreet = new TextItem();
+            m_officeStreet.setCriteriaField(PhonebookDataSource.OFFICE_STREET);
+            m_officeStreet.setOperator(OperatorId.ISTARTS_WITH);
+            m_officeStreet.setVisible(false);
+
             m_email = new TextItem();
             m_email.setCriteriaField(PhonebookDataSource.EMAIL_ADDRESS);
             m_email.setOperator(OperatorId.ISTARTS_WITH);
@@ -399,7 +449,14 @@ public class UserPhonebookSearch implements EntryPoint {
             m_fullName.setOperator(OperatorId.ISTARTS_WITH);
             m_fullName.setVisible(false);
 
-            setFields(m_firstName, m_lastName, m_number, m_email, m_fullName);
+            m_companyName = new TextItem();
+            m_companyName.setCriteriaField(PhonebookDataSource.COMPANY_NAME);
+            m_companyName.setOperator(OperatorId.ISTARTS_WITH);
+            m_companyName.setVisible(false);
+
+            setFields(m_firstName, m_lastName, m_number, m_email, m_fullName, m_companyName, 
+		      m_cellPhoneNumber, m_homePhoneNumber, m_faxNumber, m_homeStreet,  m_officeStreet);
+
             setDataSource(phonebookDS);
             setOperator(OperatorId.OR);
         }
@@ -410,8 +467,14 @@ public class UserPhonebookSearch implements EntryPoint {
                 public void onChanged(ChangedEvent event) {
                     m_lastName.setValue((String) m_firstName.getValue());
                     m_number.setValue((String) m_firstName.getValue());
+                    m_homePhoneNumber.setValue((String) m_firstName.getValue());
+                    m_cellPhoneNumber.setValue((String) m_firstName.getValue());
+                    m_faxNumber.setValue((String) m_firstName.getValue());
+                    m_homeStreet.setValue((String) m_firstName.getValue());
+                    m_officeStreet.setValue((String) m_firstName.getValue());
                     m_email.setValue((String) m_firstName.getValue());
                     m_fullName.setValue((String) m_firstName.getValue());
+                    m_companyName.setValue((String) m_firstName.getValue());
                     if (m_firstName.getValue() != null) {
                         phonebookGrid.filterData(getValuesAsCriteria());
                     } else {
