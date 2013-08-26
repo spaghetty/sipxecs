@@ -31,20 +31,20 @@ import org.sipfoundry.sipxconfig.cfgmgt.ConfigProvider;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigRequest;
 import org.sipfoundry.sipxconfig.cfgmgt.ConfigUtils;
 import org.sipfoundry.sipxconfig.cfgmgt.KeyValueConfiguration;
-import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.commserver.Location;
-import org.sipfoundry.sipxconfig.conference.Conference;
+import org.sipfoundry.sipxconfig.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.event.WebSocket;
 import org.sipfoundry.sipxconfig.feature.FeatureManager;
 import org.sipfoundry.sipxconfig.im.ImManager;
 import org.sipfoundry.sipxconfig.imbot.ImBot;
 import org.sipfoundry.sipxconfig.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.rls.Rls;
-import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.beans.factory.annotation.Required;
 
-public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
+public class OpenfireConfiguration implements ConfigProvider {
+    protected static final String DAT_FILE = "sipxopenfire.cfdat";
+    protected static final String SIPXOPENFIRE_CLASS = "sipxopenfire";
+
     private OpenfireConfigurationFile m_config;
     private SipxOpenfireConfiguration m_sipxConfig;
     private ConfigManager m_configManager;
@@ -54,21 +54,28 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
 
     @Override
     public void replicate(ConfigManager manager, ConfigRequest request) throws IOException {
-        if (!request.applies(ImManager.FEATURE, LdapManager.FEATURE, LocalizationContext.FEATURE, ImBot.FEATURE)) {
-            return;
-        }
+        if (applies(request)) {
+            writeConfigFiles(manager, request);
 
+            touchImFile();
+        }
+    }
+
+    protected static boolean applies(ConfigRequest request) {
+        return request.applies(ImManager.FEATURE, LdapManager.FEATURE, LocalizationContext.FEATURE, ImBot.FEATURE,
+                LocationsManager.FEATURE);
+    }
+
+    protected void writeConfigFiles(ConfigManager manager, ConfigRequest request) throws IOException {
         Set<Location> locations = request.locations(manager);
         for (Location location : locations) {
             File dir = manager.getLocationDataDirectory(location);
             boolean enabled = manager.getFeatureManager().isFeatureEnabled(ImManager.FEATURE, location);
-            String datfile = "sipxopenfire.cfdat";
-            String sipxopenfireClass = "sipxopenfire";
             if (!enabled) {
-                ConfigUtils.enableCfengineClass(dir, datfile, false, sipxopenfireClass);
+                disableIm(dir);
                 continue;
             }
-            ConfigUtils.enableCfengineClass(dir, datfile, true, sipxopenfireClass, "postgres");
+            enableIm(dir);
             OpenfireSettings settings = m_openfire.getSettings();
             boolean consoleEnabled = (Boolean) settings.getSettingTypedValue("settings/console");
             boolean presenceEnabled = (Boolean) settings.getSettingTypedValue("settings/enable-presence")
@@ -87,25 +94,13 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
             } finally {
                 IOUtils.closeQuietly(wtr);
             }
-            Writer sipxopenfire = new FileWriter(new File(dir, "openfire.xml"));
-            try {
-                m_config.write(sipxopenfire);
-            } finally {
-                IOUtils.closeQuietly(sipxopenfire);
-            }
 
             Writer ofproperty = new FileWriter(new File(dir, "openfire.properties.part"));
             try {
                 m_config.writeOfPropertyConfig(ofproperty, m_openfire.getSettings());
+                writeLdapProps(ofproperty, manager);
             } finally {
                 IOUtils.closeQuietly(ofproperty);
-            }
-
-            Writer multipleldap = new FileWriter(new File(dir, "multipleldap-openfire.xml"));
-            try {
-                m_config.writeMultipleLdapConfiguration(multipleldap);
-            } finally {
-                IOUtils.closeQuietly(multipleldap);
             }
 
             Writer openfire = new FileWriter(new File(dir, "sipxopenfire.xml"));
@@ -115,11 +110,29 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
                 IOUtils.closeQuietly(openfire);
             }
         }
-        //touch xmpp_update.xml on every location where openfire runs
+    }
+
+    protected void writeLdapProps(Writer ofproperty, ConfigManager manager) throws IOException {
+        m_config.writeOfLdapPropertyConfig(ofproperty, m_openfire.getSettings());
+    }
+
+    @SuppressWarnings("static-method")
+    protected void enableIm(File dir) throws IOException {
+        ConfigUtils.enableCfengineClass(dir, DAT_FILE, true, SIPXOPENFIRE_CLASS, "postgres");
+    }
+
+    @SuppressWarnings("static-method")
+    protected void disableIm(File dir) throws IOException {
+        ConfigUtils.enableCfengineClass(dir, DAT_FILE, false, SIPXOPENFIRE_CLASS);
+    }
+
+    protected void touchImFile() {
+        // touch xmpp_update.xml on every location where openfire runs
         m_openfire.touchXmppUpdate(m_featureManager.getLocationsForEnabledFeature(ImManager.FEATURE));
     }
 
-    private static void write(Writer wtr, boolean presence, boolean wsEnabled, String wsAddress, int wsPort, String adminRestUrl) throws IOException {
+    private static void write(Writer wtr, boolean presence, boolean wsEnabled, String wsAddress, int wsPort,
+            String adminRestUrl) throws IOException {
         KeyValueConfiguration config = KeyValueConfiguration.equalsSeparated(wtr);
         config.write("openfire.presence", presence);
         if (wsEnabled) {
@@ -135,24 +148,6 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
 
     public void setSipxConfig(SipxOpenfireConfiguration sipxConfig) {
         m_sipxConfig = sipxConfig;
-    }
-
-    private void checkReplicate(Object entity) {
-        if (entity instanceof User || entity instanceof Conference || entity instanceof Group) {
-            if (m_configManager.getFeatureManager().isFeatureEnabled(ImManager.FEATURE)) {
-                m_configManager.configureEverywhere(ImManager.FEATURE);
-            }
-        }
-    }
-
-    @Override
-    public void onDelete(Object entity) {
-        checkReplicate(entity);
-    }
-
-    @Override
-    public void onSave(Object entity) {
-        checkReplicate(entity);
     }
 
     public void setConfigManager(ConfigManager configManager) {
@@ -172,5 +167,9 @@ public class OpenfireConfiguration implements ConfigProvider, DaoEventListener {
     @Required
     public void setOpenfire(Openfire openfire) {
         m_openfire = openfire;
+    }
+
+    public OpenfireConfigurationFile getConfig() {
+        return m_config;
     }
 }

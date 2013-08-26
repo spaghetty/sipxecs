@@ -217,7 +217,7 @@ def reset
 end
 
 def reset_all
-  return false unless prompt_confirm("This will \e[0;31mwipe all\e[m configuration data from this server. Are you sure?")
+  return false unless $prompt[:noui] || prompt_confirm("This will \e[0;31mwipe all\e[m configuration data from this server. Are you sure?")
 
   # may not work, but try to shut down whatever is running
   cmd_no_die("#{$bindir}/sipxagent -d stop_sipxecs")
@@ -257,7 +257,7 @@ def reset_all
     drop_db_if_exists('SIPXCDR')
     drop_db_if_exists('openfire')
   end
-  cmd_no_die("#{$bindir}/mongodb-repair --obliterate")
+  cmd_no_die("#{$bindir}/mongodb-admin --obliterate")
 end
 
 def drop_db_if_exists(db)
@@ -500,7 +500,7 @@ def has_role?
 end
 
 def change_role?
-  change = $prompt[:noui] || prompt_confirm("Would you like to \e[0;31mchange\e[m your application settings?")
+  change = prompt_confirm("Would you like to \e[0;31mchange\e[m your application settings?") unless $prompt[:noui] 
   if change
     rm_file($primary_dat)
     rm_file($secondary_dat)

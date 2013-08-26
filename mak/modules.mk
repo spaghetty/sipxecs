@@ -51,7 +51,8 @@ sipx_extra = \
   sipXevent \
   sipXrecording \
   sipXsbc \
-  sipXhomer
+  sipXhomer \
+  sipXcallQueue
 
 # sipxecs projects that are NOT essential for a running communication system
 # and are related to configuration system. Many are phone plugins
@@ -195,7 +196,7 @@ sipXfreeSwitch_DEPS = $(call deps,freeswitch sipXcommserverLib)
 sipXcdr_DEPS = $(call deps,ruby-dbi ruby-postgres sipXcommserverLib)
 sipXacdStatistics_DEPS = $(call deps,ruby-dbi ruby-postgres sipXcommons)
 sipXconfig_DEPS = $(call deps,sipXcommons sipXsupervisor sipXacdStatistics sipXcdr sipXpostgres sipXcommserverLib sipXhttpd sipXmongo)
-sipXopenfire_DEPS = $(call deps,openfire sipXconfig)
+sipXopenfire_DEPS = $(call deps,openfire sipXconfig sipXsqa)
 sipXcounterpath_DEPS = $(call deps,sipXconfig)
 sipXaudiocodes_DEPS = $(call deps,sipXconfig)
 sipXprompts_DEPS = $(call deps,sipXsupervisor)
@@ -212,6 +213,7 @@ sipXhomer_DEPS = $(call deps,homer resiprocate sipXsqa)
 sipXsbc_DEPS = $(call deps,oss_core sipXsupervisor sipXconfig sipXsqa sipXregistry)
 sipXrelease_DEPS =
 sipXviewer_DEPS = $(call deps,nsis nsis-data)
+sipXcallQueue_DEPS = $(call deps,sipXconfig)
 
 # uc
 sipXtest_DEPS = $(call deps,rrdtool)

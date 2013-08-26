@@ -101,7 +101,6 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     private static final String LINE_NAME = "line";
     private static final String OPEN_ACD_QUEUE_GROUP_WITH_NAME = "openAcdQueueGroupWithName";
     private static final String OPEN_ACD_QUEUE_WITH_NAME = "openAcdQueueWithName";
-    private static final String DEFAULT_QUEUE = "default_queue";
     private static final String FS_ACTIONS_WITH_DATA = "freeswitchActionsWithData";
     private static final String OPEN_ACD_RELEASE_CODE_WITH_LABEL = "openAcdClientReleaseCodeWithLabel";
     private static final String OPEN_ACD_PROCESS_NAME = "openacd";
@@ -685,7 +684,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     public class SkillInUseException extends UserException {
     }
 
-    private boolean isSkillInUse(OpenAcdSkill skill) {
+    public boolean isSkillInUse(OpenAcdSkill skill) {
         if (countObjectWithSkillId(skill.getId(), "countOpenAcdAgentGroupWithSkill") > 0
                 || countObjectWithSkillId(skill.getId(), "countOpenAcdAgentWithSkill") > 0
                 || countObjectWithSkillId(skill.getId(), "countOpenAcdQueueGroupWithSkill") > 0
@@ -1007,7 +1006,8 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     public final class QueueInUseException extends UserException {
     }
 
-    private boolean isUsedByLine(String data) {
+    @Override
+    public boolean isUsedByLine(String data) {
         if (getActionsByData(data).size() > 0) {
             return true;
         }
@@ -1289,9 +1289,6 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
 
     @Override
     public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
-        if (b == Bundle.CALL_CENTER) {
-            b.addFeature(FEATURE);
-        }
     }
 
     @Override
@@ -1314,24 +1311,17 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
 
     @Override
     public void migrate(SetupManager manager) {
-        // Limitation introduced in OpenACD v2.0
-        String id = "restrict-openacd-to-primary-only";
+        String id = "restrict-openacd";
         if (manager.isFalse(id)) {
             FeatureManager fm = manager.getFeatureManager();
             List<Location> current = fm.getLocationsForEnabledFeature(FEATURE);
             if (current.size() >= 1) {
                 for (Location l : current) {
-                    if (!l.isPrimary()) {
-                        Location primary = m_locationsManager.getPrimaryLocation();
-                        LOG.warn("Disabling OpenACD on non-primary server due to feature limitation");
-                        // Cannot use FeatureManager to disable because that
-                        // triggers validation
-                        // and other migration tasks may still need to "repair"
-                        // the database first
-                        m_jdbcTemplate.update("delete from feature_local where feature_id = ? and location_id != ?",
-                                FEATURE.getId(), primary.getId());
-                        break;
-                    }
+                    LOG.info("Disabling OpenACD");
+                    // Cannot use FeatureManager to disable because that triggers validation and
+                    // other migration tasks may still need to "repair" the database first
+                    m_jdbcTemplate.update("delete from feature_local where feature_id = ?", FEATURE.getId());
+                    break;
                 }
             }
             manager.setTrue(id);

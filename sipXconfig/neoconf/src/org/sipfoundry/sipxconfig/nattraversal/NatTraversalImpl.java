@@ -48,7 +48,7 @@ import org.sipfoundry.sipxconfig.snmp.ProcessProvider;
 import org.sipfoundry.sipxconfig.snmp.SnmpManager;
 
 public class NatTraversalImpl implements NatTraversal, FeatureProvider, ProcessProvider, FirewallProvider,
-    AddressProvider, AlarmProvider {
+        AddressProvider, AlarmProvider {
     private BeanWithSettingsDao<NatSettings> m_settingsDao;
 
     public NatSettings getSettings() {
@@ -78,16 +78,16 @@ public class NatTraversalImpl implements NatTraversal, FeatureProvider, ProcessP
         boolean relayEnabled = manager.getFeatureManager().isFeatureEnabled(FEATURE);
         boolean proxyEnabled = manager.getFeatureManager().isFeatureEnabled(ProxyManager.FEATURE, location);
         return (relayEnabled && proxyEnabled ? Collections.singleton(ProcessDefinition.sipxByRegex("sipxrelay",
-            ".*\\s-Dprocname=sipxrelay\\s.*")) : null);
+                ".*\\s-Dprocname=sipxrelay\\s.*")) : null);
     }
 
     @Override
     public void getBundleFeatures(FeatureManager featureManager, Bundle b) {
         // No sense showing this, feature is controlled by proxy on/off status
-        //        if (b == Bundle.CORE_TELEPHONY) {
-        //            // NAT traversal as basic bundle is debatable but proxy requires it ATM AFAIU
-        //            b.addFeature(FEATURE);
-        //        }
+        // if (b == Bundle.CORE_TELEPHONY) {
+        // // NAT traversal as basic bundle is debatable but proxy requires it ATM AFAIU
+        // b.addFeature(FEATURE);
+        // }
     }
 
     @Override
@@ -123,7 +123,7 @@ public class NatTraversalImpl implements NatTraversal, FeatureProvider, ProcessP
     @Override
     public Collection<DefaultFirewallRule> getFirewallRules(FirewallManager manager) {
         return Arrays.asList(new DefaultFirewallRule(RELAY_RTP, FirewallRule.SystemId.PUBLIC, true),
-                             new DefaultFirewallRule(RELAY_RPC, FirewallRule.SystemId.CLUSTER, false));
+                new DefaultFirewallRule(RELAY_RPC, FirewallRule.SystemId.CLUSTER, false));
     }
 
     @Override
@@ -149,8 +149,8 @@ public class NatTraversalImpl implements NatTraversal, FeatureProvider, ProcessP
             return null;
         }
         String[] ids = new String[] {
-            "MEDIA_RELAY_STUN_FAILURE", "MEDIA_RELAY_STUN_RECOVERY",
-            "MEDIA_RELAY_STUN_ADDRESS_ERROR", "MEDIA_RELAY_STRAY_PACKET"
+            "MEDIA_RELAY_STUN_FAILURE", "MEDIA_RELAY_STUN_RECOVERY", "MEDIA_RELAY_STUN_ADDRESS_ERROR",
+            "MEDIA_RELAY_STRAY_PACKET"
         };
         return AlarmDefinition.asArray(ids);
     }

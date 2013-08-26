@@ -487,6 +487,13 @@
       <value>SYSTEM_DEFAULT</value>
     </setting>
   </group>
+  <group name="e911">
+    <setting name="location">
+      <type>
+        <integer/>
+      </type>
+    </setting>    
+  </group>
   <group name="timezone">
     <setting name="useBranchTimezone">
       <type>
@@ -506,6 +513,6 @@
         <boolean/>
       </type>
       <value>0</value>
-    </setting>    
+    </setting>
   </group>
 </model>
