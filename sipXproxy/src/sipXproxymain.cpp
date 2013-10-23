@@ -33,6 +33,7 @@
 #include <sipXecsService/daemon.h>
 #include <ForwardRules.h>
 #include <SipXProxyCseObserver.h>
+#include <SipXProxyCstaObserver.h>
 #include <utl/Instrumentation.h>
 #include "config.h"
 
@@ -74,6 +75,7 @@ static const char* CALL_STATE_DATABASE_NAME = "SIPXCDR";
 static const char* CALL_STATE_DATABASE_USER = POSTGRESQL_USER;
 static const char* CALL_STATE_DATABASE_DRIVER = "{PostgreSQL}";
 static const char* PROXY_CONFIG_PREFIX = "SIPX_PROXY";
+static const char* CONFIG_SETTING_CTI_PORT = "PROXY_ENABLE_CTI_PORT";
 
 UtlBoolean gShutdownFlag = FALSE;
 UtlBoolean gClosingIMDB = FALSE;
@@ -650,6 +652,7 @@ int proxy()
 
     // Create the CSE observer, either writing to file or database
     SipXProxyCseObserver* cseObserver = NULL;
+    SipXProxyCstaObserver* cstaObserver = NULL;
     CallStateEventWriter* pEventWriter = NULL;    
     if (enableCallStateLogObserver)
     {
@@ -662,8 +665,27 @@ int proxy()
                                                   callStateDbHostName.data(),
                                                   callStateDbUserName,
                                                   callStateDbDriver);      
-    }                                            
-       
+    }
+    
+    int ctiPort;
+    ctiPort = configDb.getPort(CONFIG_SETTING_CTI_PORT);
+    Os::Logger::instance().log(FAC_SIP, PRI_INFO,
+                  "SipXProxyCstaObserver:: Port: %d", ctiPort);
+    if (!portIsValid(ctiPort))
+    {
+      Os::Logger::instance().log(FAC_SIP, PRI_INFO,
+		    "SipXProxyCstaObserver:: problem reading port!");
+    }
+    else
+    {
+      Os::Logger::instance().log(FAC_SIP, PRI_INFO,
+		    "SipXProxyCstaObserver:: Enabled... starting");
+      cstaObserver = new SipXProxyCstaObserver(*pSipUserAgent, ctiPort);
+      cstaObserver->start();
+      Os::Logger::instance().log(FAC_SIP, PRI_INFO,
+		    "SipXProxyCstaObserver:: ok");
+    }
+   
     if (pEventWriter)
     {
        // get the identifier for this observer
@@ -715,6 +737,9 @@ int proxy()
     pSipUserAgent->shutdown();
     // And delete it, too.
     delete pSipUserAgent ;
+    if(portIsValid(ctiPort)) {
+      delete cstaObserver;
+    }
 
     // flush and close the call state event log
     if (enableCallStateLogObserver || enableCallStateDbObserver)
